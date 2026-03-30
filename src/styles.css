@@ -1,0 +1,35 @@
+:root {
+  --veryDarkGreen: #005C38;
+  --darkGreen: #0B7D40;
+  --BambiGreen: #2FAC66;
+  --lightGreen: #2FAC66;
+  --veryLightGreen: #19D88D;
+  --superLightGreen: #C1FFCF;
+  --white: white;
+  --gray: rgb(175, 175, 175);
+  --darkGray: #424242;
+  --black: black;
+  --bambiBlue: rgb(0, 179, 255);
+  --lightBlue: rgb(134, 219, 255);
+  --darkYellow: rgb(245, 245, 0);
+  --bambiYellow: rgb(253, 253, 49);
+  --red: red;
+  --orange: orange;
+  --purple: rgb(142, 12, 142);
+
+
+  background-color: var(--white);
+  font-family: "JetBrains Mono", system-ui, Arial;
+  font-weight: 400;
+
+}
+
+body, div, p{
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--white);
+}
+
+
+

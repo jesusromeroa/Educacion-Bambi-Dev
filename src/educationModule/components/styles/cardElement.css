@@ -1,0 +1,156 @@
+.card-info-overlay, .card-container, .card-picture {
+    width: 416px;
+    height: 490px;
+}
+
+.card-container {
+    background-color: var(--white);
+    border: none;
+    border-radius: 25px 25px 0px 0px;
+    overflow: hidden;
+    position: relative;
+}
+
+.card-picture {
+    object-fit: cover;
+    object-position: center;
+    border-radius: 25px 25px 0px 0px;
+    cursor: pointer;
+    filter: brightness(100%) opacity(100%);
+    transition: filter 0.3s;
+}
+
+.card-picture:hover{
+    filter: brightness(130%) opacity(90%);
+}
+
+.card-picture:active{
+    filter: brightness(140%) opacity(70%);
+}
+
+.card-info-overlay {
+    background-color: rgb(47, 172, 102);
+    border-radius: 25px 25px 0px 0px;
+    position: absolute;
+    bottom: -360px;
+    display: flex;
+    justify-content: flex-start; 
+    align-items: center;
+    transition: bottom 0.45s;
+    flex-direction: column;
+}
+
+.show-description-button{
+    position: absolute;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+.arrow-up-icon{
+    color: var(--white);
+    transition: transform 0.5s ease-out , color 0.3s !important ;
+}
+
+.show-description-button:hover .arrow-up-icon{
+    color: var(--darkGreen);
+}
+
+.show-description-button:active .arrow-up-icon{
+    color: var(--veryDarkGreen);
+}
+
+.show-description-button:focus-visible{
+    outline: 2px solid var(--white);
+    border-radius: 3px;
+}
+
+.show-description{
+    bottom: 0 !important;
+}
+
+.rotate-arrow-image{
+    transform: rotate(180deg) !important;
+}
+
+.card-title {
+    padding: 0 25px;
+    padding-top: 30px;
+    font-family: "JetBrains Mono", Arial;
+    font-size: 32px;
+    font-weight: bold;
+    color: white;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+    margin: 0;
+    text-align: center; 
+    align-items: center; 
+    display: flex; 
+    justify-content: center; 
+    height: 114px;
+    flex-shrink: 0;
+}
+
+.card-description {
+    color: white;
+    font-family: "JetBrains Mono", Arial;
+    font-size: 15px;
+    line-height: 17px;
+    text-align: center; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100%; 
+    padding: 0 50px; 
+    padding-bottom: 40px;
+    margin: 0; 
+}
+
+@media (max-width: 1600px){
+    .card-info-overlay, .card-container, .card-picture {
+        width: 346px;
+        height: 430px;
+    }
+
+    .card-info-overlay {
+        bottom: -300px; /*315*/
+    }
+
+    .card-title{
+        font-size: 32px;
+        padding-top: 25px;
+    }
+
+    .card-description{
+        font-size: 12px;
+    }
+
+}
+
+@media (max-width: 420px){
+    .card-info-overlay, .card-container, .card-picture {
+        width: 264px;
+        height: 370px;
+    }
+
+    .card-info-overlay {
+        bottom: -270px;
+    }
+
+    .card-title{
+        padding-top: 30px;
+        font-size: 20px;
+        height: 90px;
+        margin-bottom: 10px;
+    }
+
+    .card-description{
+        font-size: 11px;
+        padding-left: 25px;
+        padding-right: 25px;
+        padding-bottom: 10px;
+    }
+
+}

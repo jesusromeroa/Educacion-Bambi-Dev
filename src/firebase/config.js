@@ -1,8 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore/lite";
-// 1. Importamos App Check
-import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
-import { getAuth } from 'firebase/auth';
+import { getAuth } from 'firebase/auth'; 
+// import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check"; // <-- Comenta esto
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,13 +14,13 @@ const firebaseConfig = {
 
 export const FirebaseApp = initializeApp(firebaseConfig);
 export const firebaseDB = getFirestore(FirebaseApp);
-export const FirebaseAuth = getAuth(FirebaseApp);
+export const FirebaseAuth = getAuth(FirebaseApp); 
 
-// 2. Inicializamos App Check (Nota: Luego generaremos la llave de reCAPTCHA en la consola)
-// Por ahora lo dejamos preparado para que no rompa la app.
+/* COMENTAMOS ESTO POR AHORA PARA DESARROLLO LOCAL
 if (typeof window !== "undefined") {
   initializeAppCheck(FirebaseApp, {
     provider: new ReCaptchaEnterpriseProvider('AQUI_IRA_LA_LLAVE_DE_RECAPTCHA_PUBLICA'),
     isTokenAutoRefreshEnabled: true
   });
 }
+*/

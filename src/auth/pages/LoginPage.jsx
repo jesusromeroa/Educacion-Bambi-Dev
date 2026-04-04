@@ -13,7 +13,8 @@ const formData = {
 };
 
 export const LoginPage = () => {
-  const { email, password, onInputChange } = useForm(formData);
+    const { formState, onInputChange } = useForm(formData);
+    const { email, password } = formState || formData;
   
   // Herramientas de Redux y React Router
   const dispatch = useDispatch();
@@ -28,6 +29,9 @@ export const LoginPage = () => {
     event.preventDefault();
     if (isAuthenticating) return;
     
+    // Imprime esto en la consola para confirmar que sí hay texto:
+    console.log("Enviando a Firebase:", { email, password });
+
     // Disparamos la acción a Firebase
     dispatch(startLoginWithEmailPassword({ email, password }));
   };

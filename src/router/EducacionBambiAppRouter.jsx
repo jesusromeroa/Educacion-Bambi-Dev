@@ -1,13 +1,15 @@
-import React from 'react'
-import { Navigate, Route, Routes } from 'react-router'
-import { EducationRoutes } from '../educationModule/routes/EducationRoutes'
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { EducationRoutes } from '../educationModule/routes/EducationRoutes';
+import { LoginPage } from '../auth/pages/LoginPage';
 
 export const EducacionBambiAppRouter = () => {
   return (
     <Routes>
+      {/* Ruta pública para el panel de administración/login */}
+      <Route path="/login" element={<LoginPage />} />
 
-      <Route path="/*" element={<EducationRoutes/>}/>
-        
+      {/* Rutas principales (Biblioteca pública) */}
+      <Route path="/*" element={<EducationRoutes />} />
     </Routes>
-  )
-}
+  );
+};

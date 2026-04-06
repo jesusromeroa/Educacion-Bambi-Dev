@@ -1,65 +1,99 @@
-.header-container{
-    display: flex;
-    align-items: center;
-    justify-content: center;  
-    width: 100%;
-    height: 90px;
-    background-color: var(--darkGreen);
-    margin-bottom: 6vh;
+.header-container {
+  display: flex;
+  justify-content: space-between; /* Separa el logo a la izquierda y botones a la derecha */
+  align-items: center; /* Centra todo verticalmente */
+  padding: 15px 5%; /* Da un poco de respiro a los lados */
+  background-color: #2e7d32;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Sombra sutil y moderna */
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.link-to-inicio{
-    width: max-content;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    text-decoration: none;
+.logo-section {
+  display: flex;
+  align-items: center;
 }
 
-.link-to-inicio:focus-visible{
-    outline: 2px solid var(--white);
-    border-radius: 3px;
-}
-
+/* AQUÍ ESTÁ LA MAGIA PARA DOMAR EL LOGO GIGANTE */
 .header-logo {
-    object-fit: cover;
-    object-position: center;
-    width: 70px;
+  max-width: 50px; /* Límite de ancho */
+  height: auto;
+  object-fit: contain;
+  transition: transform 0.2s ease;
 }
 
-
-.header-title{
-    font-size: 30px;
-    margin-left: 30px;
-    font-weight: 500;
+.header-logo:hover {
+  transform: scale(1.02); /* Pequeño efecto al pasar el mouse por el logo */
 }
 
-@media (max-width: 1300px){
-    .header-container{
-        height: 60px;
-    }
+/* =========================================
+   2. ESTILOS MODERNOS DE LOS BOTONES
+   ========================================= */
 
-    .header-logo{
-        width: 50px;
-    }
-
-    .header-title{
-        font-size: 18px;
-    }
+.header-nav {
+  display: flex;
+  align-items: center;
 }
 
-@media (max-width: 930px){
-    .header-container{
-        height: 55px;
-    }
+.modern-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 30px; /* Estilo píldora moderno */
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
 
-    .header-logo{
-        width: 40px;
-    }
+/* Estilo para el botón de Iniciar Sesión (Borde verde) */
+.login-btn {
+  background-color: #ffffff;
+  color: #2e7d32; /* Verde Bambi */
+  border: 2px solid #0f0f0f;
+}
 
-    .header-title{
-        font-size: 15px;
-    }
+.login-btn:hover {
+  background-color: #ffffff;
+  color: white;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Estilo para el menú de administrador (Logueado) */
+.admin-menu {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.admin-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #555;
+  font-weight: 600;
+  font-size: 0.95rem;
+  background-color: #f5f5f5;
+  padding: 6px 15px;
+  border-radius: 20px;
+}
+
+/* Estilo para el botón de Cerrar Sesión (Rojo/Gris) */
+.logout-btn {
+  background-color: white;
+  color: #d32f2f;
+  border: 1px solid #ffcdd2;
+}
+
+.logout-btn:hover {
+  background-color: #d32f2f;
+  color: white;
+  border-color: #d32f2f;
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
+  transform: translateY(-2px);
 }

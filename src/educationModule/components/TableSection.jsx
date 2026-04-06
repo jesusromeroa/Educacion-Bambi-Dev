@@ -68,6 +68,7 @@ export const TableSection = ({title = ''}) => {
                                     pageItems={pageItems}
                                     format={{tableFormat:['Nombre', 'Categoría', 'Subcategoría', 'Formato'], 
                                             dataFormat: ['name', 'category', 'subcategory', 'format']}}
+                                    categoryNamesArray={pathCategories} 
                                     />
                             </div>
                 

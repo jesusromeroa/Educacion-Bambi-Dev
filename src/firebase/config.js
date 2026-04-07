@@ -1,8 +1,9 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore/lite";
 import { getAuth } from 'firebase/auth'; 
-// import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check"; // <-- Comenta esto
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 
+// Configuración de tu proyecto
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -12,15 +13,33 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-export const FirebaseApp = initializeApp(firebaseConfig);
-export const firebaseDB = getFirestore(FirebaseApp);
-export const FirebaseAuth = getAuth(FirebaseApp); 
+// Inicializar la App
+const app = initializeApp(firebaseConfig);
 
-/* COMENTAMOS ESTO POR AHORA PARA DESARROLLO LOCAL
+// Inicializar App Check (El "Captcha Invisible")
 if (typeof window !== "undefined") {
-  initializeAppCheck(FirebaseApp, {
-    provider: new ReCaptchaEnterpriseProvider('AQUI_IRA_LA_LLAVE_DE_RECAPTCHA_PUBLICA'),
+  if (window.location.hostname === "localhost") {
+    self.FIREBASE_APPCHECK_DEBUG_TOKEN = true; 
+  }
+
+  initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider(import.meta.env.VITE_RECAPTCHA_KEY || "TU_CLAVE_PUBLICA_DE_RECAPTCHA"),
     isTokenAutoRefreshEnabled: true
   });
 }
-*/
+
+// Inicializar servicios
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// =========================================================
+// EXPORTACIONES DOBLES (Para evitar errores de mayúsculas/minúsculas)
+// =========================================================
+export const FirebaseApp = app;
+export const firebaseApp = app;
+
+export const FirebaseDB = db;
+export const firebaseDB = db;
+
+export const FirebaseAuth = auth;
+export const firebaseAuth = auth;

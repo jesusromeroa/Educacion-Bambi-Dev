@@ -21,7 +21,9 @@
 .bienvenido-text{
     color: white;
     font-weight: 700;
-    font-size: 6vw;
+    font-size: 4vw;
+    padding: 50px;
+    justify-content: center;
 }
 
 .slideshow-container{

@@ -117,7 +117,7 @@ export const WelcomingSlideShow = () => {
   return (
     <div className="welcoming-container">
 
-        <div className="welcome-text-container"><span className="bienvenido-text">BIENVENIDO</span></div>
+        <div className="welcome-text-container"><span className="bienvenido-text">Portal Educativo Hogar Bambi</span></div>
         
         <div ref={slideshowContainer} className="slideshow-container">
             <button ref={leftButton} className="left-arrow-button" onClick={slideLeft}>

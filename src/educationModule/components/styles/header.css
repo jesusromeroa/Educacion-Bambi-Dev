@@ -1,13 +1,19 @@
+/* =========================================
+   1. ESTILOS DE ESTRUCTURA Y LOGO
+   ========================================= */
 .header-container {
   display: flex;
   justify-content: space-between; /* Separa el logo a la izquierda y botones a la derecha */
   align-items: center; /* Centra todo verticalmente */
   padding: 15px 5%; /* Da un poco de respiro a los lados */
-  background-color: #2e7d32;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Sombra sutil y moderna */
+  background-color: #ffffff; /* ¡Cambiado! Fondo Verde Solicitado */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil y moderna */
   position: sticky;
   top: 0;
   z-index: 100;
+  width: 100%;
+  box-sizing: border-box;
+  transition: transform 0.3s ease-in-out;
 }
 
 .logo-section {
@@ -15,22 +21,21 @@
   align-items: center;
 }
 
-/* AQUÍ ESTÁ LA MAGIA PARA DOMAR EL LOGO GIGANTE */
+/* Límite de 50px para el logo */
 .header-logo {
-  max-width: 50px; /* Límite de ancho */
+  max-width: 50px; /* ¡Cambiado! Tamaño del logo limitado a 50px */
   height: auto;
   object-fit: contain;
   transition: transform 0.2s ease;
 }
 
 .header-logo:hover {
-  transform: scale(1.02); /* Pequeño efecto al pasar el mouse por el logo */
+  transform: scale(1.05); /* Pequeño efecto al pasar el mouse por el logo */
 }
 
 /* =========================================
    2. ESTILOS MODERNOS DE LOS BOTONES
    ========================================= */
-
 .header-nav {
   display: flex;
   align-items: center;
@@ -43,28 +48,31 @@
   padding: 8px 20px;
   border-radius: 30px; /* Estilo píldora moderno */
   font-family: inherit;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.95rem;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-/* Estilo para el botón de Iniciar Sesión (Borde verde) */
+/* Estilo para el botón de Iniciar Sesión (Blanco) */
 .login-btn {
-  background-color: #ffffff;
-  color: #2e7d32; /* Verde Bambi */
-  border: 2px solid #0f0f0f;
+  background-color: #ffffff; /* ¡Cambiado! Color del botón a blanco */
+  color: #0b7d40; /* Texto en el verde del header para dar contraste */
+  border: 2px solid #0b7d40;
 }
 
 .login-btn:hover {
-  background-color: #ffffff;
-  color: white;
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+  background-color: #e8e8e8; /* Blanco un poco gris al pasar el ratón */
+  border-color: #e8e8e8;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
 }
 
-/* Estilo para el menú de administrador (Logueado) */
+/* =========================================
+   3. ESTILOS DE USUARIO AUTENTICADO
+   ========================================= */
 .admin-menu {
   display: flex;
   align-items: center;
@@ -75,15 +83,15 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #555;
+  color: #0b7d40; /* Modificado para que resalte en el header verde */
   font-weight: 600;
   font-size: 0.95rem;
-  background-color: #f5f5f5;
+  background-color: #ffffff;
   padding: 6px 15px;
   border-radius: 20px;
 }
 
-/* Estilo para el botón de Cerrar Sesión (Rojo/Gris) */
+/* Estilo para el botón de Cerrar Sesión (Rojo/Blanco) */
 .logout-btn {
   background-color: white;
   color: #d32f2f;
@@ -96,4 +104,8 @@
   border-color: #d32f2f;
   box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
   transform: translateY(-2px);
+}
+
+.header-hidden {
+  transform: translateY(-100%); /* Desplaza el header hacia arriba fuera de la pantalla */
 }

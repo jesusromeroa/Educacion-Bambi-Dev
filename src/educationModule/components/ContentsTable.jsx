@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { startSavingNewResource, startLoadingResources } from '../../store/educationModule/thunks';
+import { startSavingNewResource, startLoadingResources, startDeletingResource, startUpdatingResource } from '../../store/educationModule/thunks';
 import { AddResourceModal } from './AddResourceModal';
 import './styles/contentsTable.css';
 import CategoryIcon from '@mui/icons-material/Category';
@@ -24,39 +24,83 @@ export const ContentsTable = ({pageItems = [], format= {tableFormat: [], dataFor
   const isAdmin = status === 'authenticated';
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [resourceToEdit, setResourceToEdit] = useState(null); // NUEVO: Guarda el recurso activo
   const dispatch = useDispatch();
 
-  const handleSaveNewResource = async (newResourceData) => {
-    
-    // 1. LA MAGIA: Tomamos la categoría que el usuario eligió en el Modal
-    // La envolvemos en un arreglo porque así lo requiere Firebase
-    const exactFirebasePath = [newResourceData.category]; 
+  // Abrir Modal (Si recibe 'row', es para editar. Si no, es nuevo)
+  const handleOpenModal = (row = null) => {
+    setResourceToEdit(row);
+    setIsModalOpen(true);
+  };
 
-    // 2. Guardamos enviando esa ruta exacta
-    await dispatch(startSavingNewResource({
-      name: newResourceData.title, 
-      format: newResourceData.format,
-      url: newResourceData.url
-    }, exactFirebasePath));
+  const handleCloseModal = () => {
+    setResourceToEdit(null);
+    setIsModalOpen(false);
+  };
 
-    // 3. Recargamos la tabla (Nota: recargamos la categoría en la que estamos viendo la tabla)
-    // Si estás viendo Dirección Sociolegal, quieres ver que el archivo apareció ahí.
+  const handleSaveOrEditResource = async (resourceData) => {
+    const exactFirebasePath = resourceData.category ? [resourceData.category] : categoryNamesArray; 
+
+    if (resourceToEdit) {
+      // MAGIA AQUÍ: Buscamos tanto uid como id para evitar errores de Redux
+      const targetId = resourceToEdit.uid || resourceToEdit.id;
+      
+      if(!targetId) {
+        console.error("Fallo al leer ID del recurso. Datos recibidos:", resourceToEdit);
+        return alert("Error: No se encontró el identificador del recurso.");
+      }
+      
+      await dispatch(startUpdatingResource(targetId, {
+        name: resourceData.title, 
+        format: resourceData.format,
+        url: resourceData.url
+      }, exactFirebasePath));
+
+    } else {
+      await dispatch(startSavingNewResource({
+        name: resourceData.title, 
+        format: resourceData.format,
+        url: resourceData.url
+      }, exactFirebasePath));
+    }
+
     const pathParaRecargar = categoryNamesArray.length > 0 ? categoryNamesArray : exactFirebasePath;
     dispatch(startLoadingResources(pathParaRecargar));
+    handleCloseModal();
+  };
+
+  const handleDelete = async (row) => {
+    const confirmDelete = window.confirm(`¿Estás seguro de que deseas eliminar permanentemente el recurso "${row.name || 'seleccionado'}"?`);
+    
+    if (confirmDelete) {
+      // MAGIA AQUÍ: Buscamos tanto uid como id
+      const targetId = row.uid || row.id;
+      
+      if(!targetId) {
+        console.error("Fallo al leer ID del recurso. Datos recibidos:", row);
+        return alert("Error: No se puede eliminar, falta el identificador del documento.");
+      }
+      
+      const exactFirebasePath = categoryNamesArray.length > 0 ? categoryNamesArray : [row.category || ''];
+      
+      await dispatch(startDeletingResource(targetId, exactFirebasePath));
+      dispatch(startLoadingResources(exactFirebasePath));
+    }
   };
 
   return (
     <>
       <AddResourceModal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSave={handleSaveNewResource}
+        onClose={handleCloseModal} 
+        onSave={handleSaveOrEditResource}
+        initialData={resourceToEdit} // Le pasamos los datos al modal para que los pre-cargue
       />
 
       {isAdmin && (
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px' }}>
           <button 
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => handleOpenModal()}
             style={{ backgroundColor: 'var(--bambiBlue, #2e7d32)', color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
           >
             + Agregar Nuevo Recurso
@@ -75,7 +119,7 @@ export const ContentsTable = ({pageItems = [], format= {tableFormat: [], dataFor
           </thead>
           <tbody>
             {pageItems.map((row, index) => {
-              return (<tr key={ index }>
+              return (<tr key={ row.id || index }>
                         {format.dataFormat.map((propertyName, index) => (
                           <td key={index}>
                             { 
@@ -102,10 +146,11 @@ export const ContentsTable = ({pageItems = [], format= {tableFormat: [], dataFor
                             }
                           </td>))}
 
+                          {/* AQUÍ CONECTAMOS LOS BOTONES DE EDITAR Y ELIMINAR */}
                           {isAdmin && (
                             <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-                              <button style={{ cursor: 'pointer', background: 'none', border: 'none', fontSize: '1.2rem', marginRight: '10px' }} title="Editar">✏️</button>
-                              <button style={{ cursor: 'pointer', background: 'none', border: 'none', fontSize: '1.2rem' }} title="Eliminar">🗑️</button>
+                              <button onClick={() => handleOpenModal(row)} style={{ cursor: 'pointer', background: 'none', border: 'none', fontSize: '1.2rem', marginRight: '10px' }} title="Editar">✏️</button>
+                              <button onClick={() => handleDelete(row)} style={{ cursor: 'pointer', background: 'none', border: 'none', fontSize: '1.2rem' }} title="Eliminar">🗑️</button>
                             </td>
                           )}
 

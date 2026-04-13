@@ -54,7 +54,7 @@
     height: 0; 
     border-top: 25px solid transparent; 
     border-bottom: 25px solid transparent; 
-    border-left: 25px solid var(--gray); 
+    border-left: 25px solid var(--veryDarkGreen); 
     transition: border-left-color 0.3s, border-top 0.3s, border-bottom 0.3s, border-left 0.3s;
     background-color: transparent;
 }
@@ -64,7 +64,7 @@
     height: 0; 
     border-top: 25px solid transparent; 
     border-bottom: 25px solid transparent;
-    border-right: 25px solid var(--gray); 
+    border-right: 25px solid var(--veryDarkGreen); 
     transition: border-left-color 0.3s, border-top 0.3s, border-bottom 0.3s, border-right 0.3s;
     background-color: transparent;
 }

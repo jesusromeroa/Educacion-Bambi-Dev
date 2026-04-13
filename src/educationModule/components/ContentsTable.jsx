@@ -39,16 +39,12 @@ export const ContentsTable = ({pageItems = [], format= {tableFormat: [], dataFor
   };
 
   const handleSaveOrEditResource = async (resourceData) => {
+    // 1. Tomamos la ruta exacta para la base de datos (con guiones)
     const exactFirebasePath = resourceData.category ? [resourceData.category] : categoryNamesArray; 
 
     if (resourceToEdit) {
-      // MAGIA AQUÍ: Buscamos tanto uid como id para evitar errores de Redux
       const targetId = resourceToEdit.uid || resourceToEdit.id;
-      
-      if(!targetId) {
-        console.error("Fallo al leer ID del recurso. Datos recibidos:", resourceToEdit);
-        return alert("Error: No se encontró el identificador del recurso.");
-      }
+      if(!targetId) return alert("Error: No se encontró el identificador del recurso.");
       
       await dispatch(startUpdatingResource(targetId, {
         name: resourceData.title, 
@@ -64,8 +60,8 @@ export const ContentsTable = ({pageItems = [], format= {tableFormat: [], dataFor
       }, exactFirebasePath));
     }
 
-    const pathParaRecargar = categoryNamesArray.length > 0 ? categoryNamesArray : exactFirebasePath;
-    dispatch(startLoadingResources(pathParaRecargar));
+    // 2. SIEMPRE recargamos la vista en la que está parado el usuario actualmente
+    dispatch(startLoadingResources(categoryNamesArray));
     handleCloseModal();
   };
 
@@ -73,18 +69,25 @@ export const ContentsTable = ({pageItems = [], format= {tableFormat: [], dataFor
     const confirmDelete = window.confirm(`¿Estás seguro de que deseas eliminar permanentemente el recurso "${row.name || 'seleccionado'}"?`);
     
     if (confirmDelete) {
-      // MAGIA AQUÍ: Buscamos tanto uid como id
       const targetId = row.uid || row.id;
       
       if(!targetId) {
-        console.error("Fallo al leer ID del recurso. Datos recibidos:", row);
         return alert("Error: No se puede eliminar, falta el identificador del documento.");
       }
       
-      const exactFirebasePath = categoryNamesArray.length > 0 ? categoryNamesArray : [row.category || ''];
+      // MAGIA AQUÍ: Reconstruimos la ruta con guiones para que Firebase la encuentre
+      let pathForDeletion = [];
+      if (row.category) pathForDeletion.push(row.category.replace(/ /g, '-'));
+      if (row.subcategory) pathForDeletion.push(row.subcategory.replace(/ /g, '-'));
+
+      // Si estamos en la página principal (categoryNamesArray vacío), usamos la ruta de la fila
+      const exactFirebasePath = categoryNamesArray.length > 0 ? categoryNamesArray : pathForDeletion;
       
+      // Mandamos a borrar a la ruta correcta en Firebase
       await dispatch(startDeletingResource(targetId, exactFirebasePath));
-      dispatch(startLoadingResources(exactFirebasePath));
+      
+      // Recargamos la tabla manteniéndonos en la vista donde estábamos
+      dispatch(startLoadingResources(categoryNamesArray));
     }
   };
 

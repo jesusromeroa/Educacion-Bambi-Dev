@@ -1,26 +1,22 @@
-import React, { useRef } from 'react'
-import './styles/cardElement.css'
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux'; 
+import './styles/cardElement.css';
+import EditIcon from '@mui/icons-material/Edit'; 
 import { useLocation, useNavigate } from 'react-router';
 import { convertPathToArray, convertToHyphenatedFormat, truncateText } from '../../helpers';
+import { startUpdatingCategoryImage } from '../../store/educationModule/thunks'; 
 
 export const CardElement = ({ title = '', description = '', imageUrl = ''}) => {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const showHideButton = useRef();
-  const toogleShowHideDescription = () => {
-    const button = showHideButton.current;
-    const cardInfoOverlay = button.parentElement;
+  const dispatch = useDispatch();
 
-    if (cardInfoOverlay.classList.contains('show-description')){
-      cardInfoOverlay.classList.remove('show-description');
-      button.children[0].classList.remove('rotate-arrow-image');
-    }else{
-      cardInfoOverlay.classList.add('show-description');
-      button.children[0].classList.add('rotate-arrow-image');
-    }
-  }
+  const { status, email } = useSelector(state => state.auth);
+  const superAdmins = ['admin@admin.com']; 
+  const isSuperAdmin = status === 'authenticated' && 
+                       email && 
+                       superAdmins.some(adminEmail => adminEmail.toLowerCase() === email.trim().toLowerCase());
 
   const navigateInsideCategory = () => {
     let pathCategories = convertPathToArray(decodeURIComponent(location.pathname));
@@ -33,21 +29,45 @@ export const CardElement = ({ title = '', description = '', imageUrl = ''}) => {
     }
     navigate(path, {replace: true});
     window.location.reload();
+  }
 
+  const handleEditImage = async (e) => {
+    e.stopPropagation(); 
+    const newImageUrl = window.prompt(`Ingresa la nueva URL de la imagen para la categoría "${title}":`, imageUrl);
+    
+    if (newImageUrl && newImageUrl.trim() !== '' && newImageUrl !== imageUrl) {
+        let pathCategories = convertPathToArray(decodeURIComponent(location.pathname));
+        pathCategories.shift(); 
+        await dispatch(startUpdatingCategoryImage(title, newImageUrl.trim(), pathCategories));
+    }
   }
 
   return (
-    <div className="card-container">
-        <button onClick={() => navigateInsideCategory()} style={{height: '100%', width: '100%', border: 'none', padding: '0'}}><img className="card-picture" alt="Image" src={imageUrl} /></button>
+    <div className="card-container" onClick={navigateInsideCategory}> 
         
-        <div className="card-info-overlay">
-            <button ref={showHideButton} onClick={() => toogleShowHideDescription()} className='show-description-button'><KeyboardArrowUpIcon fontSize='large' className='arrow-up-icon'/></button>
-            <div className="card-title">
+        {isSuperAdmin && (
+            <button 
+                onClick={handleEditImage} 
+                className="super-admin-edit-btn"
+                title="Cambiar imagen de categoría"
+            >
+                <EditIcon fontSize="small" />
+            </button>
+        )}
+
+        {/* TEXTO A LA IZQUIERDA */}
+        <div className="card-info-content">
+            <h3 className="card-title">
                 {title}
-            </div>
-            <div className="card-description">
-                {truncateText({text: description, maxlength: 440})}
-            </div>
+            </h3>
+            <p className="card-description">
+                {truncateText({text: description, maxlength: 150})}
+            </p>
+        </div>
+
+        {/* IMAGEN A LA DERECHA */}
+        <div className="card-image-wrapper">
+            <img className="card-picture" alt={title} src={imageUrl} />
         </div>
 
     </div>

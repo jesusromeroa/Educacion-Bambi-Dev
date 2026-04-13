@@ -43,3 +43,27 @@
     font-size: 20px;
   }
 }
+
+/* =========================================
+   ESTILOS GLOBALES: TÍTULOS DE SECCIÓN
+   ========================================= */
+.section-title {
+    position: relative;
+    padding-bottom: 15px;
+    margin-bottom: 40px;
+    color: var(--darkGreen); /* Color principal del texto */
+    font-weight: 700;
+    display: inline-block; /* Ajusta el ancho al tamaño del texto */
+}
+
+/* La línea verde decorativa */
+.section-title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 60px; /* Ancho de la línea */
+    height: 4px; /* Grosor de la línea */
+    background-color: var(--lightGreen);
+    border-radius: 2px;
+}

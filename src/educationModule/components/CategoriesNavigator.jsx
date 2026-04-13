@@ -1,28 +1,30 @@
 import React from 'react'
 import './styles/categoriesNavigator.css'
-import { convertToSpacedFormat } from '../../helpers'
-import { useNavigate } from 'react-router'
+import { Link } from 'react-router-dom'; 
 
-export const CategoriesNavigator = ({pathCategories = []}) => {
+export const CategoriesNavigator = ({ pathCategories = [] }) => {
 
-  const navigate = useNavigate();
-
-  const handleNavigation = (path) => {
-    navigate(path);
-  }
+  // Obtenemos el último elemento del arreglo (que es la categoría actual)
+  // Si el arreglo está vacío, ponemos un texto por defecto
+  const categoryName = pathCategories.length > 0 
+    ? pathCategories[pathCategories.length - 1].replace(/-/g, ' ') 
+    : '';
 
   return (
-    <div className='categories-navigator-container'>
-        <div className='unselected-category'>
-          <span onClick={() => handleNavigation('/inicio')} className='category-link'>Inicio</span>
-          </div>
-        <div className='category-separator'>
-          {'>'}
-          </div>
-        <div className='selected-category'>
-          <span>{convertToSpacedFormat(pathCategories[pathCategories.length-1])}</span>
-          </div>
+    <div className="categories-navigator-container">
+      
+      {/* SECCIÓN INICIO: Toda el área verde es clickable */}
+      <div className="btn-inicio-container">
+        <Link to="/" className="link-full-area">
+          Inicio <span className="arrow-separator"> &gt; </span>
+        </Link>
+      </div>
+
+      {/* SECCIÓN NOMBRE DE CATEGORÍA: Ahora sí existe la variable */}
+      <div className="selected-category">
+        { categoryName }
+      </div>
+
     </div>
-    
   )
 }

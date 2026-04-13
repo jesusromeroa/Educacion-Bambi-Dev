@@ -2,17 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../../store/auth/authSlice'; 
+import { signOut } from 'firebase/auth'; // Asegurando el cierre de sesión real
+import { firebaseAuth } from '../../firebase/config';
 
 // Importamos íconos modernos para los botones
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'; // NUEVO: Ícono para el panel
 import './styles/header.css';
 
 export const Header = () => {
-    const { status, displayName } = useSelector( state => state.auth );
+    // NUEVO: Extraemos también el 'email' de Redux
+    const { status, displayName, email } = useSelector( state => state.auth );
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    // ==========================================
+    // NUEVO: LÓGICA DE SUPER ADMIN
+    // ==========================================
+    const superAdmins = ['admin@admin.com']; 
+    const isSuperAdmin = status === 'authenticated' && 
+                         email && 
+                         superAdmins.some(adminEmail => adminEmail.toLowerCase() === email.trim().toLowerCase());
 
     // --- LÓGICA DEL SMART HEADER ---
     const [isVisible, setIsVisible] = useState(true);
@@ -32,21 +44,23 @@ export const Header = () => {
             setLastScrollY(currentScrollY);
         };
 
-        // Agregamos el event listener
         window.addEventListener('scroll', handleScroll, { passive: true });
-        
-        // Limpiamos el event listener al desmontar el componente
         return () => window.removeEventListener('scroll', handleScroll);
     }, [lastScrollY]);
     // --------------------------------
 
-    const onLogout = () => {
-        dispatch( logout() ); 
-        navigate('/login', { replace: true });
+    // Mantenemos el cierre de sesión robusto que hicimos antes
+    const onLogout = async () => {
+        try {
+            await signOut(firebaseAuth); 
+            dispatch( logout() ); 
+            navigate('/', { replace: true }); 
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error);
+        }
     }
 
     return (
-        // Aplicamos la clase dinámicamente dependiendo del estado isVisible
         <header className={`header-container ${isVisible ? '' : 'header-hidden'}`}>
             
             <div className="logo-section">
@@ -63,10 +77,27 @@ export const Header = () => {
                 {
                     (status === 'authenticated')
                     ? (
-                        <div className="admin-menu">
+                        <div className="admin-menu" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            
+                            {/* NUEVO: BOTÓN EXCLUSIVO DEL PANEL DE CONTROL */}
+                            {isSuperAdmin && (
+                                <Link 
+                                    to="/panel-control" 
+                                    className="modern-btn" 
+                                    style={{ 
+                                        backgroundColor: '#e8f5e9', 
+                                        color: '#2e7d32', 
+                                        border: '1px solid #2e7d32' 
+                                    }}
+                                >
+                                    <AdminPanelSettingsIcon fontSize="small" />
+                                    Acceso de Usuarios
+                                </Link>
+                            )}
+
                             <span className="admin-badge">
                                 <AccountCircleIcon fontSize="small" />
-                                { displayName || 'Admin' }
+                                { isSuperAdmin ? 'Admin' : 'Profesor' }
                             </span>
                             <button onClick={onLogout} className="modern-btn logout-btn">
                                 <LogoutIcon fontSize="small" />
@@ -77,7 +108,7 @@ export const Header = () => {
                     : (
                         <Link to="/login" className="modern-btn login-btn">
                             <LoginIcon fontSize="small" />
-                            Iniciar Sesión
+                            Acceso de Personal
                         </Link>
                     )
                 }

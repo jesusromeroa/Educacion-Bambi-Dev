@@ -1,156 +1,115 @@
-.card-info-overlay, .card-container, .card-picture {
-    width: 416px;
-    height: 490px;
-}
-
+/* =========================================
+   DISEÑO HORIZONTAL: UNIFORME Y ALINEADO
+   ========================================= */
 .card-container {
-    background-color: var(--white);
-    border: none;
-    border-radius: 25px 25px 0px 0px;
-    overflow: hidden;
-    position: relative;
-}
-
-.card-picture {
-    object-fit: cover;
-    object-position: center;
-    border-radius: 25px 25px 0px 0px;
-    cursor: pointer;
-    filter: brightness(100%) opacity(100%);
-    transition: filter 0.3s;
-}
-
-.card-picture:hover{
-    filter: brightness(130%) opacity(90%);
-}
-
-.card-picture:active{
-    filter: brightness(140%) opacity(70%);
-}
-
-.card-info-overlay {
-    background-color: rgb(47, 172, 102);
-    border-radius: 25px 25px 0px 0px;
-    position: absolute;
-    bottom: -360px;
     display: flex;
-    justify-content: flex-start; 
-    align-items: center;
-    transition: bottom 0.45s;
-    flex-direction: column;
-}
-
-.show-description-button{
-    position: absolute;
-    background: transparent;
-    border: none;
+    flex-direction: row;
+    background-color: var(--darkGreen);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     cursor: pointer;
+    position: relative;
+    
+    /* 1. ALTURA FIJA: Esto garantiza que todas midan lo mismo */
+    height: 220px; 
+    border: 1px solid #eaeaea;
     width: 100%;
 }
 
-.arrow-up-icon{
-    color: var(--white);
-    transition: transform 0.5s ease-out , color 0.3s !important ;
+.card-container:hover {
+    transform: translateY(-5px); 
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
 }
 
-.show-description-button:hover .arrow-up-icon{
-    color: var(--darkGreen);
-}
-
-.show-description-button:active .arrow-up-icon{
-    color: var(--veryDarkGreen);
-}
-
-.show-description-button:focus-visible{
-    outline: 2px solid var(--white);
-    border-radius: 3px;
-}
-
-.show-description{
-    bottom: 0 !important;
-}
-
-.rotate-arrow-image{
-    transform: rotate(180deg) !important;
+/* TEXTO: Lado Izquierdo */
+.card-info-content {
+    flex: 1; 
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden; /* Evita que el texto se salga de la tarjeta fija */
 }
 
 .card-title {
-    padding: 0 25px;
-    padding-top: 30px;
-    font-family: "JetBrains Mono", Arial;
-    font-size: 32px;
-    font-weight: bold;
-    color: white;
-    width: 100%;
-    text-align: center;
-    box-sizing: border-box;
-    margin: 0;
-    text-align: center; 
-    align-items: center; 
-    display: flex; 
-    justify-content: center; 
-    height: 114px;
-    flex-shrink: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    
+    /* Evita que títulos muy largos rompan la altura */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .card-description {
-    color: white;
-    font-family: "JetBrains Mono", Arial;
-    font-size: 15px;
-    line-height: 17px;
-    text-align: center; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    height: 100%; 
-    padding: 0 50px; 
-    padding-bottom: 40px;
-    margin: 0; 
+    font-size: 0.9rem;
+    color: #e8f5e9;
+    line-height: 1.4;
+    margin: 0;
+    
+    /* 2. CONTROL DE TEXTO: Corta el texto a máximo 3 líneas */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-@media (max-width: 1600px){
-    .card-info-overlay, .card-container, .card-picture {
-        width: 346px;
-        height: 430px;
-    }
-
-    .card-info-overlay {
-        bottom: -300px; /*315*/
-    }
-
-    .card-title{
-        font-size: 32px;
-        padding-top: 25px;
-    }
-
-    .card-description{
-        font-size: 12px;
-    }
-
+/* IMAGEN: Lado Derecho */
+.card-image-wrapper {
+    width: 35%; 
+    min-width: 200px;
+    max-width: 300px;
+    background-color: #ffffff;
+    position: relative;
+    overflow: hidden;
+    border-left: 4px solid var(--lightGreen);
 }
 
-@media (max-width: 420px){
-    .card-info-overlay, .card-container, .card-picture {
-        width: 264px;
-        height: 370px;
-    }
+.card-picture {
+    width: 100%;
+    height: 100%;
+    /* 3. AJUSTE DE IMAGEN: Se adapta al tamaño de la tarjeta sin deformarse */
+    object-fit: cover; 
+    transition: transform 0.4s ease;
+}
 
-    .card-info-overlay {
-        bottom: -270px;
-    }
+.card-container:hover .card-picture {
+    transform: scale(1.08); 
+}
 
-    .card-title{
-        padding-top: 30px;
-        font-size: 20px;
-        height: 90px;
-        margin-bottom: 10px;
-    }
+/* Botón de edición del Admin */
+.super-admin-edit-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px; /* Movido a la izquierda para que no tape la imagen blanca */
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--darkGreen);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
 
-    .card-description{
-        font-size: 11px;
-        padding-left: 25px;
-        padding-right: 25px;
-        padding-bottom: 10px;
+/* Responsive para que no se vean mal en laptops pequeñas */
+@media (max-width: 1024px) {
+    .card-container {
+        height: 200px;
     }
-
+    .card-image-wrapper {
+        min-width: 150px;
+    }
 }

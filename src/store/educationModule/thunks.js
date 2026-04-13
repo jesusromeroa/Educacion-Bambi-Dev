@@ -1,6 +1,5 @@
 import { slideTypes } from "../../educationModule/components";
-// IMPORTANTE: Se agregaron updateResource y deleteResource
-import { loadCategories, loadResources, loadSlideShowItems, saveCategory, saveResource, saveSlideshowItem, deleteResource, updateResource } from "../../firebase/educationModule/providers"
+import { loadCategories, loadResources, loadSlideShowItems, saveCategory, saveResource, saveSlideshowItem, deleteResource, updateResource, updateCategory } from "../../firebase/educationModule/providers"
 import { calculateTotalPages, categoriesLoadedSuccesfully, determineAllFilteredItems, loadCurrentPageItems, setAllItems, setCategoriesError, setCategoriesLoadingState, setLoadedCategories, setNewPage, setSlidesShowItems, setTableError } from "./educationModuleSlice";
 
 export const startSavingCategory = ({title, description, imageUrl}, categoryNamesArray = []) => {
@@ -38,7 +37,6 @@ export const startSavingNewResource = ({ name, format, url }, categoryNamesArray
     }
 }
 
-// === NUEVO: Lógica para Eliminar Recurso ===
 export const startDeletingResource = (resourceId, categoryNamesArray = []) => {
     return async (dispatch) => {
         const resp = await deleteResource(resourceId, categoryNamesArray);
@@ -47,12 +45,20 @@ export const startDeletingResource = (resourceId, categoryNamesArray = []) => {
     }
 }
 
-// === NUEVO: Lógica para Actualizar Recurso ===
 export const startUpdatingResource = (resourceId, updatedData, categoryNamesArray = []) => {
     return async (dispatch) => {
         const resp = await updateResource(resourceId, updatedData, categoryNamesArray);
         if (!resp.ok) return console.log(resp.errorMessage);
         console.log(`Recurso actualizado exitosamente!`);
+    }
+}
+
+export const startUpdatingCategoryImage = (categoryTitle, newImageUrl, categoryNamesArray = []) => {
+    return async (dispatch) => {
+        const resp = await updateCategory(categoryTitle, { imageUrl: newImageUrl }, categoryNamesArray);
+        if (!resp.ok) return console.log(resp.errorMessage);
+        console.log(`¡Imagen de ${categoryTitle} actualizada exitosamente!`);
+        dispatch(startLoadingCategories(categoryNamesArray));
     }
 }
 

@@ -1,26 +1,24 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom'; // NUEVO: Importamos Link
+import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from '../../hooks/useForm';
-import { startLoginWithEmailPassword } from '../../store/auth/thunks';
-import './styles/loginPage.css';
+import { startRegisterWithEmailPassword } from '../../store/auth/thunks';
+import './styles/loginPage.css'; // Reciclamos los estilos del Login
 
 const logoPath = '/HBV_logo_2022_verde.png';
 
 const formData = {
+  displayName: '',
   email: '',
   password: ''
 };
 
-export const LoginPage = () => {
+export const RegisterPage = () => {
     const { formState, onInputChange } = useForm(formData);
-    const { email, password } = formState || formData;
+    const { displayName, email, password } = formState || formData;
   
-  // Herramientas de Redux y React Router
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
-  // Leemos el estado global de auth
   const { status, errorMessage } = useSelector(state => state.auth);
   
   const isAuthenticating = status === 'checking';
@@ -28,15 +26,9 @@ export const LoginPage = () => {
   const onSubmit = (event) => {
     event.preventDefault();
     if (isAuthenticating) return;
-    
-    // Imprime esto en la consola para confirmar que sí hay texto:
-    console.log("Enviando a Firebase:", { email, password });
-
-    // Disparamos la acción a Firebase
-    dispatch(startLoginWithEmailPassword({ email, password }));
+    dispatch(startRegisterWithEmailPassword({ email, password, displayName }));
   };
 
-  // Si el usuario se autenticó correctamente, lo enviamos de vuelta a la biblioteca (modo admin)
   useEffect(() => {
     if (status === 'authenticated') {
       navigate('/', { replace: true });
@@ -45,25 +37,36 @@ export const LoginPage = () => {
 
   return (
     <div className="login-container">
-      <div className="login-card">
+      <div className="login-card" style={{ position: 'relative' }}>
         
-        {/* NUEVO: Botón flotante para regresar al inicio */}
         <div className="back-btn-wrapper">
-          <Link to="/" className="back-btn">
-            &larr; Volver al inicio
+          <Link to="/login" className="back-btn">
+            &larr; Volver al Login
           </Link>
         </div>
 
         <img src={logoPath} alt="Hogar Bambi Logo" className="login-logo" />
-        <h1 className="login-title">Acceso Restringido</h1>
-        <p className="login-subtitle">Modo de edición para personal autorizado</p>
+        <h1 className="login-title">Crear Cuenta</h1>
+        <p className="login-subtitle">Exclusivo para profesores autorizados</p>
 
         <form onSubmit={onSubmit} className="login-form">
           <div className="input-group">
             <input 
+              type="text" 
+              className="login-input" 
+              placeholder="Tu Nombre" 
+              name="displayName"
+              value={displayName}
+              onChange={onInputChange}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <input 
               type="email" 
               className="login-input" 
-              placeholder="Correo electrónico" 
+              placeholder="Correo autorizado" 
               name="email"
               value={email}
               onChange={onInputChange}
@@ -75,7 +78,7 @@ export const LoginPage = () => {
             <input 
               type="password" 
               className="login-input" 
-              placeholder="Contraseña" 
+              placeholder="Crea una contraseña" 
               name="password"
               value={password}
               onChange={onInputChange}
@@ -83,7 +86,6 @@ export const LoginPage = () => {
             />
           </div>
 
-          {/* Mostrar mensaje de error si existe */}
           {errorMessage && (
             <div style={{color: '#d32f2f', backgroundColor: '#fdecea', padding: '10px', borderRadius: '5px', fontSize: '0.9rem'}}>
               {errorMessage}
@@ -95,12 +97,8 @@ export const LoginPage = () => {
             className="login-btn"
             disabled={isAuthenticating}
           >
-            {isAuthenticating ? 'Comprobando...' : 'Iniciar Sesión'}
+            {isAuthenticating ? 'Comprobando permisos...' : 'Registrarme'}
           </button>
-
-          <div style={{ marginTop: '15px', fontSize: '0.9rem' }}>
-            ¿Eres un profesor nuevo? <Link to="/registro" style={{ color: '#2e7d32', fontWeight: 'bold', textDecoration: 'none' }}>Crea tu cuenta aquí</Link>
-          </div>
         </form>
       </div>
     </div>

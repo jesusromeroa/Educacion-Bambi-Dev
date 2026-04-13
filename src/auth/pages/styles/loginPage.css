@@ -17,6 +17,7 @@
   max-width: 400px;
   text-align: center;
   transition: transform 0.3s ease;
+  position: relative; /* NUEVO: Permite que el botón flotante se posicione respecto a la tarjeta */
 }
 
 .login-logo {
@@ -87,4 +88,27 @@
 .login-btn:disabled {
   background-color: #9e9e9e;
   cursor: not-allowed;
+}
+
+/* =========================================
+   NUEVO: ESTILOS BOTÓN VOLVER AL INICIO
+   ========================================= */
+.back-btn-wrapper {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+}
+
+.back-btn {
+  text-decoration: none;
+  color: #888;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.back-btn:hover {
+  color: #2e7d32; /* Se vuelve verde Bambi al pasar el mouse */
+  transform: translateX(-3px); /* Se mueve un poquito a la izquierda */
 }

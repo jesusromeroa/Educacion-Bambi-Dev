@@ -1,14 +1,15 @@
 :root {
+  /* Tus variables de color se mantienen intactas */
   --veryDarkGreen: #005C38;
   --darkGreen: #0B7D40;
   --BambiGreen: #2FAC66;
   --lightGreen: #2FAC66;
   --veryLightGreen: #19D88D;
   --superLightGreen: #C1FFCF;
-  --white: white;
+  --white: #ffffff;
   --gray: rgb(175, 175, 175);
   --darkGray: #424242;
-  --black: black;
+  --black: #000000;
   --bambiBlue: rgb(0, 179, 255);
   --lightBlue: rgb(134, 219, 255);
   --darkYellow: rgb(245, 245, 0);
@@ -17,19 +18,48 @@
   --orange: orange;
   --purple: rgb(142, 12, 142);
 
-
+  /* Configuraciones globales */
   background-color: var(--white);
-  font-family: "JetBrains Mono", system-ui, Arial;
+  /* Cambiamos JetBrains Mono por la tipografía del Footer */
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-weight: 400;
-
+  color: var(--darkGray); /* El texto por defecto ahora es gris oscuro, no blanco */
 }
 
-body, div, p{
+/* RESET GENERAL: Limpiamos márgenes pero permitimos que el color fluya */
+* {
   margin: 0;
   padding: 0;
-  border: 0;
-  color: var(--white);
+  box-sizing: border-box; /* Ayuda a que los paddings no rompan el ancho */
 }
 
+body {
+  background-color: var(--white);
+  color: var(--darkGray); /* Texto legible sobre fondo blanco */
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
 
+/* Corregimos la regla que te ponía todo el texto en blanco */
+div, p, span, label {
+  color: white; /* Hereda el color del padre (usualmente darkGray) */
+}
 
+/* Forzamos tipografía en elementos de formulario */
+input, button, textarea, select {
+  font-family: inherit;
+}
+
+/* Estilo consistente para títulos */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--darkGreen);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 1rem;
+}
+
+/* Enlaces limpios */
+a {
+  text-decoration: none;
+  color: inherit;
+}

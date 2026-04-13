@@ -36,7 +36,7 @@ export const TableSection = ({title = ''}) => {
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
-                backgroundColor: "var(--lightGreen)",
+                backgroundColor: "#2e7d32",
                 }}>
     
                 <h1 className='section-title' style={{ color: "var(--white)", marginBottom: "60px"}}>

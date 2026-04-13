@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDocs, limit, orderBy, query, setDoc, deleteDoc, updateDoc } from "firebase/firestore/lite"
+import { addDoc, collection, doc, getDoc, getDocs, limit, orderBy, query, setDoc, deleteDoc, updateDoc } from "firebase/firestore/lite"
 import { firebaseDB } from "../../firebase/config"
 import { convertToHyphenatedFormat } from "../../helpers/convertToHyphenatedFormat";
 import { convertToSpacedFormat, insertBetweenElements } from "../../helpers";
@@ -174,3 +174,79 @@ export const loadResources = async (categoryNamesArray = []) => {
         return { ok: false, errorMessage: error.message };
     }
 };
+
+// ========================================================
+// NUEVA FUNCION: Actualizar Imagen de Categoría (Super Admin)
+// ========================================================
+export const updateCategory = async (categoryTitle, updatedData, categoryNamesArray = []) => {
+    try {
+        let firestoreRoute = [];
+        if (categoryNamesArray.length !== 0){
+            firestoreRoute = insertBetweenElements(categoryNamesArray, 'subcategories');
+            firestoreRoute.push('subcategories');
+        }
+        //  guardaba las categorías con guiones, así que usamos su helper
+        const docRef = doc(firebaseDB, 'categories', ...firestoreRoute, convertToHyphenatedFormat(categoryTitle));
+        await updateDoc(docRef, updatedData);
+        return { ok: true };
+    } catch (error) {
+        return { ok: false, errorMessage: error.message };
+    }
+}
+
+// ========================================================
+// NUEVO: PANEL DE ADMINISTRADOR (LISTA BLANCA DE PROFESORES)
+// ========================================================
+export const loadWhitelistedUsers = async () => {
+    try {
+        const collectionRef = collection(firebaseDB, 'userRoles');
+        const querySnapshot = await getDocs(collectionRef);
+        const users = [];
+        querySnapshot.forEach((doc) => {
+            users.push({ email: doc.id, ...doc.data() });
+        });
+        return { ok: true, users };
+    } catch (error) {
+        return { ok: false, errorMessage: error.message };
+    }
+}
+
+export const addWhitelistedUser = async (email, role = 'profesor') => {
+    try {
+        // Usamos el email en minúsculas como ID exacto del documento
+        const safeEmail = email.toLowerCase().trim();
+        const docRef = doc(firebaseDB, 'userRoles', safeEmail);
+        await setDoc(docRef, { role, createdAt: new Date().getTime() });
+        return { ok: true };
+    } catch (error) {
+        return { ok: false, errorMessage: error.message };
+    }
+}
+
+export const removeWhitelistedUser = async (email) => {
+    try {
+        const docRef = doc(firebaseDB, 'userRoles', email.toLowerCase().trim());
+        await deleteDoc(docRef);
+        return { ok: true };
+    } catch (error) {
+        return { ok: false, errorMessage: error.message };
+    }
+}
+
+// ========================================================
+// NUEVO: VERIFICAR SI UN CORREO ESTÁ EN LA LISTA BLANCA
+// ========================================================
+export const checkIsEmailWhitelisted = async (email) => {
+    try {
+        const docRef = doc(firebaseDB, 'userRoles', email.toLowerCase().trim());
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            return { ok: true, role: docSnap.data().role };
+        } else {
+            return { ok: false, errorMessage: 'Tu correo no está autorizado. Contacta a la administración.' };
+        }
+    } catch (error) {
+        return { ok: false, errorMessage: error.message };
+    }
+}

@@ -33,7 +33,7 @@ export const Footer = () => {
                   </li>
                   <li>
                     <EmailIcon fontSize="small" className="contact-icon"/> 
-                    <a className='hogarbambiLink' href='mailto:asis.voluntariado@hogarbambi.org'>asis.voluntariado@hogarbambi.org</a>
+                    <a className='hogarbambiLink' href='mailto:asis.voluntariado@hogarbambi.org'>voluntariado@hogarbambi.org</a>
                   </li>
                   <li style={{marginTop: '10px', fontSize: '0.85rem', color: '#a0cfa0'}}>
                     RIF: J-30251707-9

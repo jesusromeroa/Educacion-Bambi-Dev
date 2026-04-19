@@ -1,7 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore/lite";
 import { getAuth } from 'firebase/auth'; 
-import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
+// CORREGIDO: Importamos ReCaptchaV3Provider en lugar de Enterprise
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 // Configuración de tu proyecto
 const firebaseConfig = {
@@ -16,17 +17,13 @@ const firebaseConfig = {
 // Inicializar la App
 const app = initializeApp(firebaseConfig);
 
-// Inicializar App Check (El "Captcha Invisible")
-if (typeof window !== "undefined") {
-  if (window.location.hostname === "localhost") {
-    self.FIREBASE_APPCHECK_DEBUG_TOKEN = true; 
-  }
-
-  initializeAppCheck(app, {
-    provider: new ReCaptchaEnterpriseProvider(import.meta.env.VITE_RECAPTCHA_KEY || "TU_CLAVE_PUBLICA_DE_RECAPTCHA"),
-    isTokenAutoRefreshEnabled: true
-  });
-}
+const appCheck = initializeAppCheck(app, {
+  // AQUÍ PEGAS LA "CLAVE DE SITIO" (La pública, NO la secreta)
+  provider: new ReCaptchaV3Provider('6LcnP7wsAAAAAEwTi9pIIdRIf_kZDc_QMI2fQN5N'),
+  
+  // Esto es opcional, pero recomendado
+  isTokenAutoRefreshEnabled: true
+});
 
 // Inicializar servicios
 const db = getFirestore(app);

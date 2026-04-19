@@ -91,7 +91,7 @@ export const updateResource = async (resourceUid, updatedData, categoryNamesArra
 // ========================================================
 
 export const loadCategories = async (categoryNamesArray = []) => {
-    try{
+    try {
         let firestoreRoute = [];
         if (categoryNamesArray.length !== 0){
             firestoreRoute = insertBetweenElements(categoryNamesArray, 'subcategories');
@@ -102,11 +102,21 @@ export const loadCategories = async (categoryNamesArray = []) => {
         const categories = [];
         querySnapshot.forEach((doc) => {
             categories.push({uid: doc.id, ...doc.data()});
-        })
+        });
 
         if (categories.length === 0 ) return { ok: false, errorMessage: 'No se encontró ninguna categoria' }
+        
+        // ==========================================
+        // NUEVO: Ordenamos las tarjetas por su campo 'index'
+        // ==========================================
+        categories.sort((a, b) => {
+            const indexA = a.index !== undefined ? a.index : 999; // 999 manda las nuevas al final
+            const indexB = b.index !== undefined ? b.index : 999;
+            return indexA - indexB;
+        });
+
         return { ok: true, categories }
-    }catch(error){
+    } catch(error) {
         return { ok: false, errorMessage: error.message }
     }
 }
@@ -188,6 +198,29 @@ export const updateCategory = async (categoryTitle, updatedData, categoryNamesAr
         //  guardaba las categorías con guiones, así que usamos su helper
         const docRef = doc(firebaseDB, 'categories', ...firestoreRoute, convertToHyphenatedFormat(categoryTitle));
         await updateDoc(docRef, updatedData);
+        return { ok: true };
+    } catch (error) {
+        return { ok: false, errorMessage: error.message };
+    }
+}
+
+// ========================================================
+// NUEVA FUNCION: Eliminar Categoría (Super Admin)
+// ========================================================
+export const deleteCategory = async (categoryTitle, categoryNamesArray = []) => {
+    try {
+        let firestoreRoute = [];
+        // Replicamos tu lógica exacta para navegar por las subcategorías
+        if (categoryNamesArray.length !== 0){
+            firestoreRoute = insertBetweenElements(categoryNamesArray, 'subcategories');
+            firestoreRoute.push('subcategories');
+        }
+        
+        // Apuntamos al documento exacto usando el formato con guiones
+        const docRef = doc(firebaseDB, 'categories', ...firestoreRoute, convertToHyphenatedFormat(categoryTitle));
+        
+        // Ejecutamos el borrado
+        await deleteDoc(docRef);
         return { ok: true };
     } catch (error) {
         return { ok: false, errorMessage: error.message };

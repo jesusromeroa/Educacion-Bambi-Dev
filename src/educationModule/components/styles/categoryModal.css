@@ -1,0 +1,159 @@
+/* Fondo oscuro semi-transparente detrás del modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(3px); /* Efecto cristal */
+}
+
+/* La caja blanca del modal */
+.modal-content {
+    background-color: var(--white);
+    width: 90%;
+    max-width: 550px;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+.modal-header h2 {
+    color: var(--darkGreen);
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.btn-close-icon {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.btn-close-icon:hover {
+    color: var(--darkGray);
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--darkGray);
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--lightGreen);
+    box-shadow: 0 0 0 3px rgba(47, 172, 102, 0.1);
+}
+
+.form-group input:disabled {
+    background-color: #f5f5f5;
+    color: #888;
+    cursor: not-allowed;
+}
+
+/* Botones de Acción */
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.right-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-cancel {
+    background: none;
+    border: none;
+    color: var(--darkGray);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 10px 15px;
+}
+
+.btn-save {
+    background-color: var(--darkGreen);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.2s;
+}
+
+.btn-save:hover {
+    background-color: var(--veryDarkGreen);
+}
+
+.btn-delete {
+    background-color: transparent;
+    color: var(--red);
+    border: 1px solid var(--red);
+    border-radius: 8px;
+    padding: 8px 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+}
+
+.btn-delete:hover {
+    background-color: var(--red);
+    color: var(--white);
+}

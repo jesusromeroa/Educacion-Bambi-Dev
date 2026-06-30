@@ -31,7 +31,7 @@ export const RegisterPage = () => {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      navigate('/', { replace: true });
+      navigate('/biblioteca', { replace: true });
     }
   }, [status, navigate]);
 

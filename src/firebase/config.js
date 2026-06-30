@@ -4,6 +4,7 @@ import { getAuth } from 'firebase/auth';
 // CORREGIDO: Importamos ReCaptchaV3Provider en lugar de Enterprise
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { getStorage } from "firebase/storage";
+import { getAnalytics } from "firebase/analytics";
 
 // Configuración de tu proyecto
 const firebaseConfig = {
@@ -29,6 +30,7 @@ const appCheck = initializeAppCheck(app, {
 // Inicializar servicios
 const db = getFirestore(app);
 const auth = getAuth(app);
+const analytics = getAnalytics(app);
 
 // =========================================================
 // EXPORTACIONES DOBLES (Para evitar errores de mayúsculas/minúsculas)
@@ -43,3 +45,4 @@ export const FirebaseAuth = auth;
 export const firebaseAuth = auth;
 
 export const FirebaseStorage = getStorage(FirebaseApp);
+export const FirebaseAnalytics = analytics;

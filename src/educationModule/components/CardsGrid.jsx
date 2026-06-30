@@ -9,7 +9,7 @@ import { CategoryModal } from './CategoryModal'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { useLocation } from 'react-router-dom';
 import { convertPathToArray } from '../../helpers';
-import { startSavingCategory, startUpdatingCategoryInfo, startDeletingCategoryFull, startReorderingCategories } from '../../store/educationModule/thunks';
+import { startSavingCategoryComplete, startUpdatingCategoryInfoComplete, startDeletingCategoryFullComplete, startReorderingCategories } from '../../store/educationModule/thunks';
 export const CardsGrid = () => {
 
   const dispatch = useDispatch();
@@ -43,21 +43,19 @@ export const CardsGrid = () => {
       setIsModalOpen(true);
   };
 
-  const handleSaveModal = async (formData) => {
+const handleSaveModal = async (formData, imageFile) => {
       const pathArray = getCategoryNamesArray();
       if (categoryToEdit) {
-          // Si estamos editando
-          await dispatch(startUpdatingCategoryInfo(categoryToEdit.title, formData, pathArray));
+          await dispatch(startUpdatingCategoryInfoComplete(categoryToEdit.title, formData, imageFile, categoryToEdit, pathArray));
       } else {
-          // Si estamos creando una nueva
-          await dispatch(startSavingCategory(formData, pathArray));
+          await dispatch(startSavingCategoryComplete(formData, imageFile, pathArray));
       }
       setIsModalOpen(false);
   };
 
-  const handleDeleteModal = async (title) => {
+  const handleDeleteModal = async (title, storagePath) => {
       const pathArray = getCategoryNamesArray();
-      await dispatch(startDeletingCategoryFull(title, pathArray));
+      await dispatch(startDeletingCategoryFullComplete(title, storagePath, pathArray));
       setIsModalOpen(false);
   };
 

@@ -1,23 +1,27 @@
-import React from 'react'
-import { MainPage } from '../pages/MainPage'
-import { Navigate, Route, Routes } from 'react-router'
-import { SubcategoriesPage } from '../pages/SubcategoriesPage'
-import { AdminPanelPage } from '../pages/AdminPanelPage'; // Importa la página del panel de administración
-
+import React from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom'; 
+import { MainPage } from '../pages/MainPage';
+import { SubcategoriesPage } from '../pages/SubcategoriesPage';
+import { AdminPanelPage } from '../pages/AdminPanelPage';
+import { LandingPage } from '../pages/LandingPage'; // NUEVO IMPORT
 
 export const EducationRoutes = () => {
   return (
     <Routes>
 
-      <Route path="/inicio" element={<MainPage/>}/>
+      {/* 1. LA NUEVA CARA PÚBLICA DE LA FUNDACIÓN */}
+      <Route path="/" element={<LandingPage />} />
 
-      <Route path="/subcategoria/*" element={<SubcategoriesPage/>}/>
+      {/* 2. EL PORTAL EDUCATIVO INTERNO (Antes era /inicio) */}
+      <Route path="/biblioteca" element={<MainPage />} />
+      
+      {/* 3. SUB-RUTAS DE LA BIBLIOTECA */}
+      <Route path="/subcategoria/*" element={<SubcategoriesPage />} />
+      <Route path="/panel-control" element={<AdminPanelPage />} />
 
-      <Route path="/*" element={<Navigate to="/inicio"/>}/>
-
-      <Route path="panel-control" element={<AdminPanelPage />} />
+      {/* Si alguien escribe una URL que no existe, lo regresamos al inicio */}
+      <Route path="/*" element={<Navigate to="/" />} />
 
     </Routes>
-  )
-}
-
+  );
+};

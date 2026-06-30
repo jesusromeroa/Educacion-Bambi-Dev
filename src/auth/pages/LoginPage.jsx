@@ -39,7 +39,7 @@ export const LoginPage = () => {
   // Si el usuario se autenticó correctamente, lo enviamos de vuelta a la biblioteca (modo admin)
   useEffect(() => {
     if (status === 'authenticated') {
-      navigate('/', { replace: true });
+      navigate('/biblioteca', { replace: true });
     }
   }, [status, navigate]);
 

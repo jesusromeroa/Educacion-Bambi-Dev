@@ -1,0 +1,232 @@
+/* src/educationModule/components/styles/landingPage.css */
+
+.landing-container {
+    width: 100%;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: var(--darkGray);
+}
+
+/* =========================================
+   1. HERO SECTION (Portada Impactante)
+   ========================================= */
+.hero-section {
+    position: relative;
+    height: 75vh;
+    min-height: 500px;
+    background: linear-gradient(135deg, rgba(0, 92, 56, 0.9) 0%, rgba(11, 125, 64, 0.8) 100%), 
+                url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2022&auto=format&fit=crop') center/cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    padding: 0 20px;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    max-width: 800px;
+    color: white;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    font-weight: 400;
+    max-width: 600px;
+    margin-bottom: 40px;
+    line-height: 1.6;
+    color: #e8f5e9;
+}
+
+.hero-cta-btn {
+    background-color: #f57c00; /* Naranja para llamar a la acción */
+    color: white;
+    padding: 15px 35px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(245, 124, 0, 0.4);
+    transition: all 0.3s ease;
+}
+
+.hero-cta-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(245, 124, 0, 0.6);
+    background-color: #ef6c00;
+}
+
+/* =========================================
+   2. MÉTRICAS DE IMPACTO
+   ========================================= */
+.metrics-section {
+    background-color: white;
+    padding: 60px 8%;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-top: -50px; /* Sube un poco sobre el hero para un efecto moderno */
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border-radius: 16px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.metric-card {
+    text-align: center;
+    flex: 1;
+    min-width: 200px;
+}
+
+.metric-number {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--darkGreen);
+    margin-bottom: 10px;
+}
+
+.metric-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--darkGray);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* =========================================
+   3. CÓMO AYUDAMOS (Información de la Plataforma)
+   ========================================= */
+.info-section {
+    padding: 80px 10%;
+    background-color: #f9fbf9;
+    display: flex;
+    align-items: center;
+    gap: 50px;
+}
+
+.info-text {
+    flex: 1;
+}
+
+.info-text h2 {
+    font-size: 2.5rem;
+    color: var(--darkGreen);
+    margin-bottom: 20px;
+}
+
+.info-text p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.info-image {
+    flex: 1;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.info-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* =========================================
+   4. TESTIMONIO / DONANTES
+   ========================================= */
+.testimonial-section {
+    padding: 80px 10%;
+    background-color: var(--darkGreen);
+    color: white;
+    text-align: center;
+}
+
+.testimonial-quote {
+    font-size: 1.8rem;
+    font-style: italic;
+    font-weight: 300;
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+    line-height: 1.5;
+}
+
+.testimonial-author {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--superLightGreen);
+}
+
+@media (max-width: 768px) {
+    .hero-title { font-size: 2.2rem; }
+    .metrics-section { width: 90%; margin-top: -30px; padding: 40px 5%; }
+    .info-section { flex-direction: column; padding: 50px 5%; }
+}
+
+/* =========================================
+   5. FORMULARIO DE CONTACTO
+   ========================================= */
+.contact-section {
+    padding: 80px 10%;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.contact-form {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+    text-align: left;
+}
+
+.contact-input, .contact-textarea {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.contact-input:focus, .contact-textarea:focus {
+    outline: none;
+    border-color: var(--lightGreen);
+    box-shadow: 0 0 0 3px rgba(47, 172, 102, 0.1);
+}
+
+.contact-submit-btn {
+    background-color: var(--darkGreen);
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.contact-submit-btn:hover:not(:disabled) {
+    background-color: #086030;
+}
+.contact-submit-btn:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+}

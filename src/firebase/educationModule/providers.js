@@ -5,8 +5,7 @@ import { convertToSpacedFormat, insertBetweenElements } from "../../helpers";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { FirebaseStorage } from "../config";
 
-//ESTA FUNCION NI SIQUIERA PERTENECE AL MODULO DE EDUCACION
-export const saveCategory = async ({title, description, imageUrl}, categoryNamesArray = []) => {
+export const saveCategory = async (categoryData, categoryNamesArray = []) => {
     try {
         let firestoreRoute = [];
         if (categoryNamesArray.length !== 0){
@@ -14,7 +13,8 @@ export const saveCategory = async ({title, description, imageUrl}, categoryNames
             firestoreRoute.push('subcategories');
         }
         const collectionRef = collection(firebaseDB, 'categories', ...firestoreRoute);
-        await setDoc(doc(collectionRef, convertToHyphenatedFormat(title)), { title, description, imageUrl });
+        // Guardamos el objeto completo
+        await setDoc(doc(collectionRef, convertToHyphenatedFormat(categoryData.title)), categoryData);
         return { ok: true }
     } catch (error) {
         return { ok: false, errorMessage: error.message }
@@ -41,6 +41,29 @@ export const saveSlideshowItem = async (newSlide) => {
         return { ok: true, newSlideUid }
     }catch(error){
         return { ok: false, errorMessage: error.message }
+    }
+}
+
+// ========================================================
+// NUEVAS FUNCIONES PARA EDITAR Y ELIMINAR SLIDESHOW
+// ========================================================
+export const updateSlideshowItem = async (slideUid, updatedData) => {
+    try {
+        const docRef = doc(firebaseDB, 'slideShowItems', slideUid);
+        await updateDoc(docRef, updatedData);
+        return { ok: true };
+    } catch (error) {
+        return { ok: false, errorMessage: error.message };
+    }
+}
+
+export const deleteSlideshowItem = async (slideUid) => {
+    try {
+        const docRef = doc(firebaseDB, 'slideShowItems', slideUid);
+        await deleteDoc(docRef);
+        return { ok: true };
+    } catch (error) {
+        return { ok: false, errorMessage: error.message };
     }
 }
 
@@ -320,3 +343,17 @@ export const deleteFileFromStorage = async (fullPath) => {
         return { ok: false, errorMessage: error.message };
     }
 };
+
+// ========================================================
+// NUEVO: GUARDAR MENSAJE DE CONTACTO (LANDING PAGE)
+// ========================================================
+export const saveContactMessage = async (messageData) => {
+    try {
+        const collectionRef = collection(firebaseDB, 'contactMessages');
+        // Agregamos un timestamp para saber exactamente cuándo enviaron el mensaje
+        await addDoc(collectionRef, { ...messageData, createdAt: new Date().getTime() });
+        return { ok: true };
+    } catch (error) {
+        return { ok: false, errorMessage: error.message };
+    }
+}

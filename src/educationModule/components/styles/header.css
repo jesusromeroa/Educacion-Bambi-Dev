@@ -109,3 +109,50 @@
 .header-hidden {
   transform: translateY(-100%); /* Desplaza el header hacia arriba fuera de la pantalla */
 }
+
+/* =========================================
+   4. MENÚ HAMBURGUESA (MÓVILES)
+   ========================================= */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--darkGreen);
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block; /* Mostramos el botón en celulares */
+    }
+
+    .header-nav {
+        display: none; /* Ocultamos el menú por defecto */
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: white;
+        padding: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        gap: 15px;
+    }
+
+    .header-nav.nav-open {
+        display: flex; /* Lo mostramos si la variable 'open' está activa */
+    }
+
+    .admin-menu {
+        flex-direction: column;
+        width: 100%;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .modern-btn, .admin-badge {
+        width: 100%;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+}

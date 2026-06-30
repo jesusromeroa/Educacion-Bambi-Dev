@@ -3,7 +3,7 @@ import '../educationStyles/educationStyles.css'
 import { EducationPageLayout } from '../layouts/EducationPageLayout'
 import { WelcomingSlideShow } from '../components/WelcomingSlideShow'
 import { CardsGrid } from '../components/CardsGrid'
-import { startLoadingCategories, startLoadingSlideShowItems, startSavingCategory, startSavingNewResource } from '../../store/educationModule/thunks'
+import { startLoadingCategories, startLoadingSlideShowItems } from '../../store/educationModule/thunks'
 import { useDispatch } from 'react-redux'
 import { TableSection } from '../components/TableSection'
 

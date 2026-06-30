@@ -11,7 +11,9 @@ import {
     updateCategory, 
     deleteCategory,
     uploadFileToStorage, // <-- Unificado aquí
-    deleteFileFromStorage
+    deleteFileFromStorage,
+    updateSlideshowItem,   
+    deleteSlideshowItem,
 } from "../../firebase/educationModule/providers";
 import { 
     calculateTotalPages, 
@@ -27,52 +29,148 @@ import {
     setTableError 
 } from "./educationModuleSlice";
 
-export const startSavingCategory = ({title, description, imageUrl}, categoryNamesArray = []) => {
+/**
+ * Crea una Categoría y sube su imagen a Storage
+ */
+export const startSavingCategoryComplete = (formData, imageFile, categoryNamesArray = []) => {
     return async (dispatch) => {
-        const resp = await saveCategory({title, description, imageUrl}, categoryNamesArray);
+        let categoryData = { ...formData };
+        
+        if (imageFile) {
+            const folderPath = `categoryImages`; 
+            const uploadResp = await uploadFileToStorage(imageFile, folderPath);
+            if (!uploadResp.ok) return console.error("Error subiendo imagen:", uploadResp.errorMessage);
+            
+            categoryData.imageUrl = uploadResp.url;
+            categoryData.storagePath = uploadResp.fullPath; // Clave para poder borrarla luego
+        }
+
+        const resp = await saveCategory(categoryData, categoryNamesArray);
         if ( !resp.ok ) return console.log(resp.errorMessage);
-        console.log(`Categoría ${title} guardada exitosamente!`);
-        // Recargamos las categorías para que aparezca la nueva inmediatamente
+        console.log(`Categoría ${categoryData.title} guardada exitosamente!`);
+        
         dispatch(startLoadingCategories(categoryNamesArray));
     }
 }
 
-// Thunk para actualizar TODA la información de la categoría (título, desc, imagen)
-export const startUpdatingCategoryInfo = (categoryTitle, updatedData, categoryNamesArray = []) => {
+/**
+ * Actualiza la Categoría. Si hay imagen nueva, borra la vieja de Storage.
+ */
+export const startUpdatingCategoryInfoComplete = (categoryTitle, formData, imageFile, existingData, categoryNamesArray = []) => {
     return async (dispatch) => {
+        let updatedData = {
+            title: formData.title,
+            description: formData.description
+        };
+
+        if (imageFile) {
+            const folderPath = `categoryImages`;
+            const uploadResp = await uploadFileToStorage(imageFile, folderPath);
+            if (!uploadResp.ok) return console.error("Error subiendo nueva imagen:", uploadResp.errorMessage);
+            
+            updatedData.imageUrl = uploadResp.url;
+            updatedData.storagePath = uploadResp.fullPath;
+
+            // Limpieza: Borramos la imagen vieja SOLO si existe en nuestro Storage
+            if (existingData.storagePath) {
+                await deleteFileFromStorage(existingData.storagePath);
+            }
+        }
+
         const resp = await updateCategory(categoryTitle, updatedData, categoryNamesArray);
         if (!resp.ok) return console.log(resp.errorMessage);
-        console.log(`Categoría ${categoryTitle} actualizada exitosamente!`);
+        
+        console.log(`Categoría ${categoryTitle} actualizada!`);
         dispatch(startLoadingCategories(categoryNamesArray));
     }
 }
 
-// Thunk para eliminar la categoría
-export const startDeletingCategoryFull = (categoryTitle, categoryNamesArray = []) => {
+/**
+ * Elimina la Categoría y su imagen física.
+ */
+export const startDeletingCategoryFullComplete = (categoryTitle, storagePath, categoryNamesArray = []) => {
     return async (dispatch) => {
+        // Borramos la imagen de Storage si tiene una
+        if (storagePath) {
+            await deleteFileFromStorage(storagePath);
+        }
+        // Borramos el documento de Firestore
         const resp = await deleteCategory(categoryTitle, categoryNamesArray);
         if (!resp.ok) return console.log(resp.errorMessage);
-        console.log(`Categoría eliminada exitosamente!`);
+        
+        console.log(`Categoría eliminada!`);
         dispatch(startLoadingCategories(categoryNamesArray));
     }
 }
 
-export const startSavingSlideShowItem = ({type, imageUrl, alt, title, content}) => {
+// ========================================================
+// THUNKS PARA ADMINISTRAR LA PORTADA (SLIDESHOW)
+// ========================================================
+
+export const startSavingSlideShowItemComplete = (formData, imageFile) => {
     return async (dispatch) => {
-        let newSlide = {};
-        switch (type) {
-            case slideTypes.imageSlide:
-                newSlide =  { type, imageUrl, alt };
-            break;
-            case slideTypes.textSlide:
-                newSlide =  { type, title, content };
-            break;
-            default:
-                throw new Error({errorMessage:'Tried to save a non-existent slide type for SlideShow'});
-        };
-        const resp = await saveSlideshowItem(newSlide)
-        if (!resp.ok) return console.log(resp.errorMessage);
+        let newSlide = { type: slideTypes.imageSlide, alt: formData.alt || 'Hogar Bambi Slide' };
+        
+        // 1. Subimos la imagen del slide a Storage
+        if (imageFile) {
+            const folderPath = `slideshowImages`; 
+            const uploadResp = await uploadFileToStorage(imageFile, folderPath);
+            if (!uploadResp.ok) return console.error("Error subiendo imagen del slide:", uploadResp.errorMessage);
+            
+            newSlide.imageUrl = uploadResp.url;
+            newSlide.storagePath = uploadResp.fullPath;
+        }
+
+        // 2. Guardamos en Firestore
+        const resp = await saveSlideshowItem(newSlide);
+        if (!resp.ok) return console.error(resp.errorMessage);
+        
         console.log('Slide nuevo guardado existosamente!');
+        
+        // 3. SILENT RELOAD
+        dispatch(startLoadingSlideShowItems());
+    }
+}
+
+export const startUpdatingSlideShowItemComplete = (slideUid, formData, imageFile, existingData) => {
+    return async (dispatch) => {
+        let updatedData = { alt: formData.alt || 'Hogar Bambi Slide' };
+
+        if (imageFile) {
+            const folderPath = `slideshowImages`;
+            const uploadResp = await uploadFileToStorage(imageFile, folderPath);
+            if (!uploadResp.ok) return console.error("Error subiendo nueva imagen de slide:", uploadResp.errorMessage);
+            
+            updatedData.imageUrl = uploadResp.url;
+            updatedData.storagePath = uploadResp.fullPath;
+
+            // Borramos la imagen vieja del Storage
+            if (existingData.storagePath) {
+                await deleteFileFromStorage(existingData.storagePath);
+            }
+        }
+
+        const resp = await updateSlideshowItem(slideUid, updatedData);
+        if (!resp.ok) return console.error(resp.errorMessage);
+        
+        console.log(`Slide actualizado exitosamente!`);
+        dispatch(startLoadingSlideShowItems());
+    }
+}
+
+export const startDeletingSlideShowItemComplete = (slideUid, storagePath) => {
+    return async (dispatch) => {
+        // 1. Borrado físico
+        if (storagePath) {
+            await deleteFileFromStorage(storagePath);
+        }
+        
+        // 2. Borrado lógico
+        const resp = await deleteSlideshowItem(slideUid);
+        if (!resp.ok) return console.error("Error borrando slide:", resp.errorMessage);
+        
+        console.log(`Slide eliminado completamente!`);
+        dispatch(startLoadingSlideShowItems());
     }
 }
 

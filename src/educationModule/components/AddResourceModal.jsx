@@ -3,36 +3,35 @@ import './styles/addResourceModal.css';
 
 const initialFormData = {
   title: '',
-  url: '',
-  format: 'pdf',
   category: '' 
+  // Eliminamos 'format' de aquí, ahora lo detectaremos automáticamente
 };
 
-// Le agregamos la propiedad initialData
 export const AddResourceModal = ({ isOpen, onClose, onSave, initialData }) => {
-  // Usamos useState en lugar de useForm para poder forzar la carga de datos al editar
   const [formState, setFormState] = useState(initialFormData);
+  
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (initialData) {
-      // Firebase devuelve las categorías con espacios ("Educación Infantil")
-      // Pero nuestro <select> requiere guiones ("Educación-Infantil") para hacer match.
       const formattedCategory = initialData.category ? initialData.category.replace(/ /g, '-') : '';
       
       setFormState({
         title: initialData.name || '',
-        url: initialData.url || '',
-        format: initialData.format || 'pdf',
         category: formattedCategory
       });
+      setSelectedFile(null); 
     } else {
       setFormState(initialFormData);
+      setSelectedFile(null);
     }
+    setIsUploading(false);
   }, [initialData, isOpen]);
 
   if (!isOpen) return null;
 
-  const { title, url, format, category } = formState;
+  const { title, category } = formState;
 
   const onInputChange = ({ target }) => {
     const { name, value } = target;
@@ -42,20 +41,63 @@ export const AddResourceModal = ({ isOpen, onClose, onSave, initialData }) => {
     });
   };
 
-  const handleSubmit = (event) => {
+  const handleFileChange = (e) => {
+    if (e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  // ========================================================
+  // NUEVO: Función para autodetectar el formato del archivo
+  // ========================================================
+  const detectFormat = (file) => {
+    if (!file) return 'default';
+    
+    // Leemos el tipo MIME del archivo (ej: 'application/pdf', 'video/mp4')
+    const mimeType = file.type.toLowerCase();
+    
+    if (mimeType.includes('pdf')) return 'pdf';
+    if (mimeType.includes('video')) return 'video';
+    if (mimeType.includes('image')) return 'imagen';
+    if (mimeType.includes('word') || mimeType.includes('document')) return 'doc';
+    
+    return 'default'; // Si es excel, ppt u otro desconocido
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     
-    if (title.trim().length === 0 || url.trim().length === 0 || category.trim().length === 0) {
+    if (title.trim().length === 0 || category.trim().length === 0) {
         alert("Por favor, completa todos los campos y selecciona una categoría.");
         return;
     }
 
-    onSave(formState);
-    setFormState(initialFormData); // Limpiamos tras guardar
+    if (!initialData && !selectedFile) {
+        alert("Por favor, selecciona un archivo para subir.");
+        return;
+    }
+
+    setIsUploading(true);
+    
+    // Asignamos el formato de forma inteligente
+    // Si estamos editando y no subió archivo nuevo, conservamos el viejo. 
+    // Si subió un archivo, lo detectamos.
+    let finalFormat = initialData ? initialData.format : 'default'; 
+    if (selectedFile) {
+        finalFormat = detectFormat(selectedFile);
+    }
+    
+    await onSave({ ...formState, format: finalFormat, file: selectedFile });
+    
+    setIsUploading(false);
+    setFormState(initialFormData); 
+    setSelectedFile(null);
   };
 
   const handleClose = () => {
     setFormState(initialFormData);
+    setSelectedFile(null);
+    setIsUploading(false);
     onClose();
   };
 
@@ -73,16 +115,7 @@ export const AddResourceModal = ({ isOpen, onClose, onSave, initialData }) => {
             value={title}
             onChange={onInputChange}
             required
-          />
-
-          <input 
-            type="url" 
-            className="modal-input" 
-            placeholder="Enlace (URL de Google Drive, YouTube, etc.)" 
-            name="url"
-            value={url}
-            onChange={onInputChange}
-            required
+            disabled={isUploading}
           />
 
           <select 
@@ -91,6 +124,7 @@ export const AddResourceModal = ({ isOpen, onClose, onSave, initialData }) => {
             value={category}
             onChange={onInputChange}
             required
+            disabled={isUploading}
           >
             <option value="" disabled>-- Selecciona el Área / Categoría --</option>
             <option value="Dirección-Sociolegal">Dirección Sociolegal</option>
@@ -99,24 +133,40 @@ export const AddResourceModal = ({ isOpen, onClose, onSave, initialData }) => {
             <option value="Recursos-Humanos">Recursos Humanos</option>
           </select>
 
-          <select 
-            className="modal-select" 
-            name="format"
-            value={format}
-            onChange={onInputChange}
-          >
-            <option value="pdf">Documento PDF</option>
-            <option value="doc">Documento Word</option>
-            <option value="video">Video</option>
-            <option value="imagen">Imagen</option>
-          </select>
+          {/* INPUT DE ARCHIVO FÍSICO */}
+          <div style={{ marginBottom: '15px' }}>
+              <input 
+                type="file" 
+                className="modal-input" 
+                onChange={handleFileChange}
+                required={!initialData} 
+                disabled={isUploading}
+                style={{ marginBottom: '5px' }}
+              />
+              
+              {/* ======================================================== */}
+              {/* NUEVO: Feedback visual del nombre del archivo              */}
+              {/* ======================================================== */}
+              {selectedFile && (
+                  <div style={{ color: 'var(--bambiBlue, #2e7d32)', fontWeight: 'bold', fontSize: '0.9rem', marginTop: '5px' }}>
+                      📄 Archivo listo: {selectedFile.name}
+                  </div>
+              )}
+          </div>
+
+          {initialData && !selectedFile && (
+            <small style={{ display: 'block', marginBottom: '15px', color: '#666', fontSize: '0.85rem' }}>
+              Deja este campo vacío si no deseas cambiar el archivo actual.
+            </small>
+          )}
 
           <div className="modal-actions">
-            <button type="button" className="btn-cancel" onClick={handleClose}>
+            <button type="button" className="btn-cancel" onClick={handleClose} disabled={isUploading}>
               Cancelar
             </button>
-            <button type="submit" className="btn-save">
-              {initialData ? 'Actualizar' : 'Guardar Recurso'}
+            
+            <button type="submit" className="btn-save" disabled={isUploading}>
+              {isUploading ? 'Subiendo...' : (initialData ? 'Actualizar' : 'Guardar Recurso')}
             </button>
           </div>
         </form>

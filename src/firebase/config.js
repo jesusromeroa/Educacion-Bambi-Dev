@@ -3,6 +3,7 @@ import { getFirestore } from "firebase/firestore/lite";
 import { getAuth } from 'firebase/auth'; 
 // CORREGIDO: Importamos ReCaptchaV3Provider en lugar de Enterprise
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { getStorage } from "firebase/storage";
 
 // Configuración de tu proyecto
 const firebaseConfig = {
@@ -40,3 +41,5 @@ export const firebaseDB = db;
 
 export const FirebaseAuth = auth;
 export const firebaseAuth = auth;
+
+export const FirebaseStorage = getStorage(FirebaseApp);

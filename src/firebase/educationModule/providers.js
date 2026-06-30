@@ -2,6 +2,8 @@ import { addDoc, collection, doc, getDoc, getDocs, limit, orderBy, query, setDoc
 import { firebaseDB } from "../../firebase/config"
 import { convertToHyphenatedFormat } from "../../helpers/convertToHyphenatedFormat";
 import { convertToSpacedFormat, insertBetweenElements } from "../../helpers";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import { FirebaseStorage } from "../config";
 
 //ESTA FUNCION NI SIQUIERA PERTENECE AL MODULO DE EDUCACION
 export const saveCategory = async ({title, description, imageUrl}, categoryNamesArray = []) => {
@@ -42,15 +44,21 @@ export const saveSlideshowItem = async (newSlide) => {
     }
 }
 
-//ESTA FUNCION NI SIQUIERA PERTENECE AL MODULO DE EDUCACION
-export const saveResource = async ({ name, format, url }, categoryNamesArray = []) => {
+// ========================================================
+// CORRECCIÓN CRÍTICA: Eliminado el destructuring
+// Recibe "resourceData" entero para no perder el storagePath
+// ========================================================
+export const saveResource = async (resourceData, categoryNamesArray = []) => {
     try {
         let firestoreRoute = [];
         if (categoryNamesArray.length !== 0){
             firestoreRoute = insertBetweenElements(categoryNamesArray, 'subcategories');
         }
         const collectionRef = collection(firebaseDB, 'categories', ...firestoreRoute, 'resources');
-        const docRef =  await addDoc(collectionRef, { name, format, url});
+        
+        // Pasamos resourceData tal cual, preservando la url y el storagePath
+        const docRef =  await addDoc(collectionRef, resourceData);
+        
         const resourceUid = docRef.id;
         return { ok: true, resourceUid }
     } catch (error) {
@@ -195,7 +203,6 @@ export const updateCategory = async (categoryTitle, updatedData, categoryNamesAr
             firestoreRoute = insertBetweenElements(categoryNamesArray, 'subcategories');
             firestoreRoute.push('subcategories');
         }
-        //  guardaba las categorías con guiones, así que usamos su helper
         const docRef = doc(firebaseDB, 'categories', ...firestoreRoute, convertToHyphenatedFormat(categoryTitle));
         await updateDoc(docRef, updatedData);
         return { ok: true };
@@ -210,16 +217,11 @@ export const updateCategory = async (categoryTitle, updatedData, categoryNamesAr
 export const deleteCategory = async (categoryTitle, categoryNamesArray = []) => {
     try {
         let firestoreRoute = [];
-        // Replicamos tu lógica exacta para navegar por las subcategorías
         if (categoryNamesArray.length !== 0){
             firestoreRoute = insertBetweenElements(categoryNamesArray, 'subcategories');
             firestoreRoute.push('subcategories');
         }
-        
-        // Apuntamos al documento exacto usando el formato con guiones
         const docRef = doc(firebaseDB, 'categories', ...firestoreRoute, convertToHyphenatedFormat(categoryTitle));
-        
-        // Ejecutamos el borrado
         await deleteDoc(docRef);
         return { ok: true };
     } catch (error) {
@@ -246,7 +248,6 @@ export const loadWhitelistedUsers = async () => {
 
 export const addWhitelistedUser = async (email, role = 'profesor') => {
     try {
-        // Usamos el email en minúsculas como ID exacto del documento
         const safeEmail = email.toLowerCase().trim();
         const docRef = doc(firebaseDB, 'userRoles', safeEmail);
         await setDoc(docRef, { role, createdAt: new Date().getTime() });
@@ -283,3 +284,39 @@ export const checkIsEmailWhitelisted = async (email) => {
         return { ok: false, errorMessage: error.message };
     }
 }
+
+/**
+ * Sube un archivo a Firebase Storage y devuelve su URL pública.
+ */
+export const uploadFileToStorage = async (file, folderPath) => {
+    try {
+        const fileExtension = file.name.split('.').pop();
+        const uniqueFileName = `${new Date().getTime()}_${Math.random().toString(36).substring(2, 8)}.${fileExtension}`;
+        const storageRef = ref(FirebaseStorage, `${folderPath}/${uniqueFileName}`);
+        const uploadResult = await uploadBytes(storageRef, file);
+        const downloadUrl = await getDownloadURL(uploadResult.ref);
+
+        return { 
+            ok: true, 
+            url: downloadUrl, 
+            fullPath: storageRef.fullPath 
+        };
+    } catch (error) {
+        console.error("Error subiendo archivo:", error);
+        return { ok: false, errorMessage: error.message };
+    }
+};
+
+/**
+ * Elimina un archivo físico de Firebase Storage usando su ruta completa.
+ */
+export const deleteFileFromStorage = async (fullPath) => {
+    try {
+        const storageRef = ref(FirebaseStorage, fullPath);
+        await deleteObject(storageRef);
+        return { ok: true };
+    } catch (error) {
+        console.error("Error eliminando archivo:", error);
+        return { ok: false, errorMessage: error.message };
+    }
+};

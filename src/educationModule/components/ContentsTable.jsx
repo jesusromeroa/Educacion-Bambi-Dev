@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { startSavingNewResource, startLoadingResources, startDeletingResource, startUpdatingResource } from '../../store/educationModule/thunks';
+import { 
+  startSavingNewResource, 
+  startLoadingResources, 
+  startDeletingResourceComplete, 
+  startUpdatingResourceComplete 
+} from '../../store/educationModule/thunks';
 import { AddResourceModal } from './AddResourceModal';
 import './styles/contentsTable.css';
 import CategoryIcon from '@mui/icons-material/Category';
@@ -24,10 +29,9 @@ export const ContentsTable = ({pageItems = [], format= {tableFormat: [], dataFor
   const isAdmin = status === 'authenticated';
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [resourceToEdit, setResourceToEdit] = useState(null); // NUEVO: Guarda el recurso activo
+  const [resourceToEdit, setResourceToEdit] = useState(null); 
   const dispatch = useDispatch();
 
-  // Abrir Modal (Si recibe 'row', es para editar. Si no, es nuevo)
   const handleOpenModal = (row = null) => {
     setResourceToEdit(row);
     setIsModalOpen(true);
@@ -39,29 +43,23 @@ export const ContentsTable = ({pageItems = [], format= {tableFormat: [], dataFor
   };
 
   const handleSaveOrEditResource = async (resourceData) => {
-    // 1. Tomamos la ruta exacta para la base de datos (con guiones)
     const exactFirebasePath = resourceData.category ? [resourceData.category] : categoryNamesArray; 
 
     if (resourceToEdit) {
       const targetId = resourceToEdit.uid || resourceToEdit.id;
       if(!targetId) return alert("Error: No se encontró el identificador del recurso.");
       
-      await dispatch(startUpdatingResource(targetId, {
-        name: resourceData.title, 
-        format: resourceData.format,
-        url: resourceData.url
-      }, exactFirebasePath));
+      await dispatch(startUpdatingResourceComplete(
+          targetId, 
+          resourceData, 
+          resourceToEdit, 
+          exactFirebasePath
+      ));
 
     } else {
-      await dispatch(startSavingNewResource({
-        name: resourceData.title, 
-        format: resourceData.format,
-        url: resourceData.url
-      }, exactFirebasePath));
+       console.log("Creación de recurso delegada al componente padre.");
     }
 
-    // 2. SIEMPRE recargamos la vista en la que está parado el usuario actualmente
-    dispatch(startLoadingResources(categoryNamesArray));
     handleCloseModal();
   };
 
@@ -75,19 +73,13 @@ export const ContentsTable = ({pageItems = [], format= {tableFormat: [], dataFor
         return alert("Error: No se puede eliminar, falta el identificador del documento.");
       }
       
-      // MAGIA AQUÍ: Reconstruimos la ruta con guiones para que Firebase la encuentre
       let pathForDeletion = [];
       if (row.category) pathForDeletion.push(row.category.replace(/ /g, '-'));
       if (row.subcategory) pathForDeletion.push(row.subcategory.replace(/ /g, '-'));
 
-      // Si estamos en la página principal (categoryNamesArray vacío), usamos la ruta de la fila
       const exactFirebasePath = categoryNamesArray.length > 0 ? categoryNamesArray : pathForDeletion;
       
-      // Mandamos a borrar a la ruta correcta en Firebase
-      await dispatch(startDeletingResource(targetId, exactFirebasePath));
-      
-      // Recargamos la tabla manteniéndonos en la vista donde estábamos
-      dispatch(startLoadingResources(categoryNamesArray));
+      await dispatch(startDeletingResourceComplete(targetId, row.storagePath, exactFirebasePath));
     }
   };
 
@@ -97,19 +89,8 @@ export const ContentsTable = ({pageItems = [], format= {tableFormat: [], dataFor
         isOpen={isModalOpen} 
         onClose={handleCloseModal} 
         onSave={handleSaveOrEditResource}
-        initialData={resourceToEdit} // Le pasamos los datos al modal para que los pre-cargue
+        initialData={resourceToEdit} 
       />
-
-      {isAdmin && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px' }}>
-          <button 
-            onClick={() => handleOpenModal()}
-            style={{ backgroundColor: 'var(--bambiBlue, #2e7d32)', color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
-          >
-            + Agregar Nuevo Recurso
-          </button>
-        </div>
-      )}
 
       <div style={{borderRadius: '15px', overflow: 'hidden'}}>
         <div className='table-container'>
@@ -149,7 +130,6 @@ export const ContentsTable = ({pageItems = [], format= {tableFormat: [], dataFor
                             }
                           </td>))}
 
-                          {/* AQUÍ CONECTAMOS LOS BOTONES DE EDITAR Y ELIMINAR */}
                           {isAdmin && (
                             <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                               <button onClick={() => handleOpenModal(row)} style={{ cursor: 'pointer', background: 'none', border: 'none', fontSize: '1.2rem', marginRight: '10px' }} title="Editar">✏️</button>

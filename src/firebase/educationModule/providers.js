@@ -135,7 +135,7 @@ export const loadCategories = async (categoryNamesArray = []) => {
             categories.push({uid: doc.id, ...doc.data()});
         });
 
-        if (categories.length === 0 ) return { ok: false, errorMessage: 'No se encontró ninguna categoria' }
+        if (categories.length === 0 ) return { ok: true, categories: [] }
         
         // ==========================================
         // NUEVO: Ordenamos las tarjetas por su campo 'index'
@@ -235,18 +235,57 @@ export const updateCategory = async (categoryTitle, updatedData, categoryNamesAr
 }
 
 // ========================================================
-// NUEVA FUNCION: Eliminar Categoría (Super Admin)
+// NUEVA FUNCIÓN: Borrado en Cascada (Recursivo)
+// ========================================================
+export const deleteCategoryRecursive = async (targetPathArray) => {
+    try {
+        const firestoreRoute = insertBetweenElements(targetPathArray, 'subcategories');
+        const categoryDocRef = doc(firebaseDB, 'categories', ...firestoreRoute);
+
+        // 1. Borrar la imagen de portada de esta categoría (si tiene)
+        const catSnap = await getDoc(categoryDocRef);
+        if (catSnap.exists()) {
+            const catData = catSnap.data();
+            if (catData.storagePath) await deleteFileFromStorage(catData.storagePath);
+        }
+
+        // 2. Borrar todos los recursos de esta categoría (Storage Físico + Firestore)
+        const resourcesRef = collection(firebaseDB, 'categories', ...firestoreRoute, 'resources');
+        const resourcesSnap = await getDocs(resourcesRef);
+        for (const resDoc of resourcesSnap.docs) {
+            const data = resDoc.data();
+            if (data.storagePath) await deleteFileFromStorage(data.storagePath);
+            await deleteDoc(doc(firebaseDB, 'categories', ...firestoreRoute, 'resources', resDoc.id));
+        }
+
+        // 3. Buscar subcarpetas y borrarlas recursivamente (Inception)
+        const subcatsRef = collection(firebaseDB, 'categories', ...firestoreRoute, 'subcategories');
+        const subcatsSnap = await getDocs(subcatsRef);
+        for (const subCatDoc of subcatsSnap.docs) {
+            await deleteCategoryRecursive([...targetPathArray, subCatDoc.id]);
+        }
+
+        // 4. Finalmente, borrar el documento de la categoría
+        await deleteDoc(categoryDocRef);
+
+        return { ok: true };
+    } catch (error) {
+        console.error("Error en borrado recursivo:", error);
+        return { ok: false, errorMessage: error.message };
+    }
+}
+
+// ========================================================
+// ACTUALIZACIÓN: Eliminar Categoría (Super Admin)
 // ========================================================
 export const deleteCategory = async (categoryTitle, categoryNamesArray = []) => {
     try {
-        let firestoreRoute = [];
-        if (categoryNamesArray.length !== 0){
-            firestoreRoute = insertBetweenElements(categoryNamesArray, 'subcategories');
-            firestoreRoute.push('subcategories');
-        }
-        const docRef = doc(firebaseDB, 'categories', ...firestoreRoute, convertToHyphenatedFormat(categoryTitle));
-        await deleteDoc(docRef);
-        return { ok: true };
+        // Armamos la ruta exacta de la carpeta que queremos destruir
+        const targetCategory = convertToHyphenatedFormat(categoryTitle);
+        const fullPathArray = [...categoryNamesArray, targetCategory];
+        
+        // Llamamos a nuestra nueva destructora masiva
+        return await deleteCategoryRecursive(fullPathArray);
     } catch (error) {
         return { ok: false, errorMessage: error.message };
     }

@@ -117,7 +117,7 @@ const handleSaveModal = async (formData, imageFile) => {
                   onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(47, 172, 102, 0.05)'; e.currentTarget.style.transform = 'translateY(0)' }}
               >
                   <AddCircleOutlineIcon style={{ fontSize: '3rem', marginBottom: '10px' }} />
-                  <h3 style={{ margin: 0, fontSize: '1.2rem', textTransform: 'uppercase' }}>Nueva Categoría</h3>
+                  <h3 style={{ margin: 0, fontSize: '1.2rem', textTransform: 'uppercase', textAlign: 'center' }}>{getCategoryNamesArray().length > 0 ? 'Nueva Subcategoría' : 'Nueva Categoría'}</h3>
               </div>
           )}
         </div>

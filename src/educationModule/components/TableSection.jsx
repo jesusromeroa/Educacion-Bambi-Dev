@@ -4,12 +4,11 @@ import { SearchBar } from '../components/SearchBar'
 import { ContentsTable } from '../components/ContentsTable'
 import { TableNavigator } from '../components/TableNavigator'
 import { useTable } from '../hooks/useTable'
-import { useSelector, useDispatch } from 'react-redux' // Importamos useDispatch
+import { useSelector, useDispatch } from 'react-redux'
 import { CircularLoader } from './CircularLoader'
 import { useLocation } from 'react-router'
 import { convertPathToArray } from '../../helpers'
 
-// 1. Nuevas Importaciones para el Modal y el Thunk
 import { AddResourceModal } from '../components/AddResourceModal'
 import { startUploadingAndSavingResource } from '../../store/educationModule/thunks'
 
@@ -18,12 +17,11 @@ export const TableSection = ({title = ''}) => {
     const {tableSection} = useSelector(store => store.educationModule);
     const { status } = useSelector(state => state.auth);
     const isAdmin = status === 'authenticated';
-    const dispatch = useDispatch(); // Inicializamos el dispatch
+    const dispatch = useDispatch(); 
     const location = useLocation();
     let pathCategories = convertPathToArray(decodeURIComponent(location.pathname));
     pathCategories.shift();
     
-    // 2. Estado local para controlar si el modal está abierto o cerrado
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const {
@@ -40,21 +38,23 @@ export const TableSection = ({title = ''}) => {
 
     const {handleSetSearchParam, handleSetNewPage} = useTable(pathCategories);
 
-   // 3. Función que se dispara cuando el modal nos devuelve los datos listos
     const handleSaveResource = async (formData) => {
-        
-        // Creamos el arreglo con la categoría que el usuario seleccionó en el Modal
-        const categoryPathArray = [formData.category]; 
+        // CORRECCIÓN A: Convertimos el arreglo dinámico de nombres seleccionados a formato con guiones para Firebase
+        const savePathArray = formData.selectedPath.map(segment => segment.trim().replace(/ /g, '-'));
+
+        // CORRECCIÓN B: Almacenamos la URL en la que estamos parados para que el Silent Reload actualice la vista exacta
+        const reloadPathArray = pathCategories; 
 
         await dispatch(
             startUploadingAndSavingResource(
-                formData.file,         // El archivo físico
-                formData.title,        // El nombre
-                formData.format,       // El formato (pdf, video, etc.)
-                categoryPathArray      // ¡AQUÍ PASAMOS EL ARREGLO CORRECTO!
+                formData.file,         
+                formData.title,        
+                formData.format,       
+                savePathArray,         // Destino de guardado físico en la BD
+                reloadPathArray        // Destino visual para refrescar la tabla
             )
         );
-        setIsModalOpen(false); // Cerramos el modal al terminar
+        setIsModalOpen(false); 
     };
 
     return (
@@ -76,18 +76,15 @@ export const TableSection = ({title = ''}) => {
                         <div style={{ marginLeft: '8%', marginRight: '8%', marginTop: '100px', marginBottom: '200px', display: 'flex', justifyContent: 'center'}}>
                             <CircularLoader/>
                         </div>
-            
                     )
                     :
                     (
                         <>
-                            {/* 4. Modificamos este div para poner la barra de búsqueda y el botón en la misma línea */}
                             <div style={{ marginLeft: '8%', marginRight: '8%', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                                 <div style={{ flexGrow: 1, marginRight: '20px' }}>
                                     <SearchBar onUpdateSearchParam={handleSetSearchParam}/>
                                 </div>
 
-                                {/* BOTÓN DE AGREGAR RECURSO */}
                                 {isAdmin && (
                                     <button 
                                         onClick={() => setIsModalOpen(true)}
@@ -133,12 +130,13 @@ export const TableSection = ({title = ''}) => {
                 
             </div>
 
-            {/* 5. Insertamos el Modal fuera del flujo de la tabla para que se sobreponga correctamente */}
+            {/* CORRECCIÓN C: Inyectamos el path actual de la URL para que el modal se auto-configure al abrirse */}
             <AddResourceModal 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
                 onSave={handleSaveResource} 
-                initialData={null} // Es null porque estamos creando, no editando
+                initialData={null} 
+                currentPath={pathCategories} 
             />
         </>
     )

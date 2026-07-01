@@ -21,15 +21,8 @@ export const CategoryModal = ({ isOpen, onClose, initialData, onSave, onDelete }
 
     if (!isOpen) return null;
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleImageChange = (e) => {
-        if (e.target.files[0]) {
-            setSelectedImage(e.target.files[0]);
-        }
-    };
+    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleImageChange = (e) => { if (e.target.files[0]) setSelectedImage(e.target.files[0]); };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -38,7 +31,7 @@ export const CategoryModal = ({ isOpen, onClose, initialData, onSave, onDelete }
         const finalDataToSave = {
             title: formData.title,
             description: formData.description,
-            // Mantenemos intactas las subcategorías ocultas para que no se borren al editar
+            // Conservamos las subcategorías ocultas para no perder datos si existían
             subcategories: initialData && initialData.subcategories ? initialData.subcategories : []
         };
 
@@ -48,81 +41,43 @@ export const CategoryModal = ({ isOpen, onClose, initialData, onSave, onDelete }
 
     const handleDeleteClick = () => {
         const confirm = window.confirm(`⚠️ ADVERTENCIA ⚠️\n¿Estás seguro de eliminar la categoría "${initialData.title}"?\n\nSi tiene recursos adentro, podrían perderse.`);
-        if (confirm) {
-            onDelete(initialData.title, initialData.storagePath); 
-        }
+        if (confirm) onDelete(initialData.title, initialData.storagePath); 
     };
 
     return (
         <div className="modal-overlay">
             <div className="modal-content">
-                
                 <div className="modal-header">
                     <h2>{initialData ? 'Editar Categoría' : 'Nueva Categoría'}</h2>
                     <button onClick={onClose} disabled={isUploading} className="btn-close-icon"><CloseIcon /></button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="modal-form">
-                    
                     <div className="form-group">
-                        <label>Título de la Categoría</label>
-                        <input 
-                            type="text" 
-                            name="title" 
-                            value={formData.title} 
-                            onChange={handleChange} 
-                            placeholder="Ej. Dirección Sociolegal"
-                            required 
-                            disabled={!!initialData || isUploading} 
-                        />
+                        <label>Título</label>
+                        <input type="text" name="title" value={formData.title} onChange={handleChange} required disabled={!!initialData || isUploading} />
                     </div>
 
                     <div className="form-group">
                         <label>Imagen de Portada</label>
-                        <input 
-                            type="file" 
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            disabled={isUploading}
-                            className="modal-input"
-                        />
-                        {selectedImage && (
-                            <div style={{ color: 'var(--bambiBlue, #2e7d32)', fontWeight: 'bold', fontSize: '0.85rem', marginTop: '5px' }}>
-                                🖼️ Imagen lista: {selectedImage.name}
-                            </div>
-                        )}
-                        {initialData && !selectedImage && (
-                            <small style={{ color: '#666', fontSize: '0.8rem' }}>
-                                Deja este campo vacío para conservar la imagen actual.
-                            </small>
-                        )}
+                        <input type="file" accept="image/*" onChange={handleImageChange} disabled={isUploading} className="modal-input" />
+                        {selectedImage && <div style={{ color: '#2e7d32', fontWeight: 'bold', fontSize: '0.85rem', marginTop: '5px' }}>🖼️ Lista: {selectedImage.name}</div>}
+                        {initialData && !selectedImage && <small style={{ color: '#666', fontSize: '0.8rem' }}>Deja vacío para conservar la imagen actual.</small>}
                     </div>
 
                     <div className="form-group">
                         <label>Descripción</label>
-                        <textarea 
-                            name="description" 
-                            value={formData.description} 
-                            onChange={handleChange} 
-                            rows="4" 
-                            placeholder="Breve descripción de los recursos que contiene esta categoría..."
-                            required 
-                            disabled={isUploading}
-                        />
+                        <textarea name="description" value={formData.description} onChange={handleChange} rows="4" required disabled={isUploading} />
                     </div>
 
                     <div className="modal-actions">
                         {initialData ? (
-                            <button type="button" className="btn-delete" onClick={handleDeleteClick} disabled={isUploading}>
-                                <DeleteForeverIcon fontSize="small"/> Eliminar
-                            </button>
+                            <button type="button" className="btn-delete" onClick={handleDeleteClick} disabled={isUploading}><DeleteForeverIcon fontSize="small"/> Eliminar</button>
                         ) : <div></div>}
                         
                         <div className="right-actions">
                             <button type="button" className="btn-cancel" onClick={onClose} disabled={isUploading}>Cancelar</button>
-                            <button type="submit" className="btn-save" disabled={isUploading}>
-                                <SaveIcon fontSize="small"/> {isUploading ? 'Procesando...' : 'Guardar'}
-                            </button>
+                            <button type="submit" className="btn-save" disabled={isUploading}><SaveIcon fontSize="small"/> {isUploading ? 'Procesando...' : 'Guardar'}</button>
                         </div>
                     </div>
                 </form>

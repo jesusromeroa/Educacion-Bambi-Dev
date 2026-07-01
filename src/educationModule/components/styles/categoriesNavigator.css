@@ -2,12 +2,13 @@
     display: flex;
     justify-content: left;
     align-items: stretch;
-    margin-top: 20px; /* Cambiado de -5vh a 20px positivo para darle respiro */
-    margin-bottom: 30px; /* Un poco más de espacio hacia abajo también */
+    margin-top: 20px;
+    margin-bottom: 30px;
     min-width: 0;
+    flex-wrap: wrap; /* Importante por si la ruta de carpetas es muy larga y no cabe en la pantalla */
 }
 
-.categories-navigator-container div{
+.categories-navigator-container div {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -21,17 +22,13 @@
     min-width: 0;
 }
 
-.selected-category{
+.selected-category {
     background-color: var(--darkGreen) !important;
-    border-radius: 0 20px 20px 0 ;
+    border-radius: 0 20px 20px 0;
     padding-right: 20px !important;
 }
 
-.category-link:active{
-    text-decoration: underline;
-}
-
-.category-link:hover{
+.category-link:active, .category-link:hover {
     text-decoration: underline;
     cursor: pointer;
 }
@@ -46,37 +43,48 @@
     }
 }
 
-/* Contenedor principal de la sección verde de "Inicio" */
+/* =========================================
+   Estilos para enlaces (Migas de Pan)
+   ========================================= */
+
+/* Contenedor principal de la sección de "Biblioteca" */
 .btn-inicio-container {
-    background-color: var(--darkGreen);
+    background-color: var(--lightGreen);
     border-radius: 20px 0 0 20px; /* Redondeado solo a la izquierda */
-    display: flex;
-    align-items: center;
-    overflow: hidden; /* Importante para que el clic no se salga de las esquinas redondeadas */
-    padding: 0; /* Quitamos el padding de aquí y se lo damos al link */
+    padding: 0 !important; /* Quitamos el padding de aquí y se lo damos al link */
+    overflow: hidden;
 }
 
-/* El link ahora es el que manda sobre el tamaño */
+/* Contenedor para niveles intermedios (Carpeta > Subcarpeta >) */
+.intermediate-container {
+    background-color: var(--lightGreen);
+    padding: 0 !important; /* Quitamos el padding para que el link use el 100% */
+    border-left: 1px solid rgba(255, 255, 255, 0.3); /* Una línea sutil para separarlos */
+    overflow: hidden;
+}
+
+/* El link toma todo el espacio del contenedor */
 .link-full-area {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     height: 100%;
-    padding: 10px 20px; /* El espacio interno ahora lo da el link */
+    padding: 10px 20px; 
     color: white;
     text-decoration: none;
     font-weight: bold;
     transition: background-color 0.3s ease;
 }
 
-/* Efecto visual al pasar el mouse por cualquier parte de la zona verde */
+/* Efecto visual al pasar el mouse por cualquier enlace */
 .link-full-area:hover {
-    background-color: var(--lightGreen); /* Cambia de tono al tocar cualquier parte */
+    background-color: var(--darkGreen) !important; 
     color: white;
 }
 
 .arrow-separator {
     margin-left: 10px;
     font-weight: bold;
+    opacity: 0.8;
 }

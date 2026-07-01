@@ -86,19 +86,16 @@ export const startUpdatingCategoryInfoComplete = (categoryTitle, formData, image
 }
 
 /**
- * Elimina la Categoría y su imagen física.
+ * Elimina la Categoría, sus subcategorías y TODOS sus recursos físicos.
  */
 export const startDeletingCategoryFullComplete = (categoryTitle, storagePath, categoryNamesArray = []) => {
     return async (dispatch) => {
-        // Borramos la imagen de Storage si tiene una
-        if (storagePath) {
-            await deleteFileFromStorage(storagePath);
-        }
-        // Borramos el documento de Firestore
+        
+        // El borrado recursivo en providers se encarga de TODO el trabajo sucio
         const resp = await deleteCategory(categoryTitle, categoryNamesArray);
         if (!resp.ok) return console.log(resp.errorMessage);
         
-        console.log(`Categoría eliminada!`);
+        console.log(`¡Categoría y todo su contenido eliminados sin dejar rastro!`);
         dispatch(startLoadingCategories(categoryNamesArray));
     }
 }
@@ -329,11 +326,11 @@ export const startReorderingCategories = (reorderedArray, categoryNamesArray = [
  * Orquesta la subida del archivo físico y el guardado de sus datos en Firestore.
  * Respeta el patrón "Silent Reload" recargando la tabla sin pantallas de carga globales.
  */
-export const startUploadingAndSavingResource = (file, resourceName, resourceFormat, categoryPathArray) => {
+export const startUploadingAndSavingResource = (file, resourceName, resourceFormat, savePathArray, reloadPathArray = []) => {
     return async (dispatch, getState) => {
         
-        // 1. Subimos el archivo a Firebase Storage
-        const folderPath = `resources/${categoryPathArray.join('/')}`;
+        // 1. Subimos el archivo a Firebase Storage usando la ruta de guardado
+        const folderPath = `resources/${savePathArray.join('/')}`;
         const uploadResp = await uploadFileToStorage(file, folderPath);
 
         if (!uploadResp.ok) {
@@ -349,16 +346,15 @@ export const startUploadingAndSavingResource = (file, resourceName, resourceForm
             storagePath: uploadResp.fullPath 
         };
 
-        const saveResp = await saveResource(resourceData, categoryPathArray);
+        const saveResp = await saveResource(resourceData, savePathArray);
 
         if (!saveResp.ok) {
              console.error("Error al guardar en Firestore:", saveResp.errorMessage);
              return { ok: false, errorMessage: saveResp.errorMessage };
         }
 
-        // 3. SILENT RELOAD: Volvemos a cargar los recursos de esta categoría 
-        // Descomentado y usando la función loadResources importada arriba.
-        const refreshResp = await loadResources(categoryPathArray);
+        // 3. SILENT RELOAD: Recargamos usando la ruta en la que el usuario está parado
+        const refreshResp = await loadResources(reloadPathArray);
         if (refreshResp.ok) {
             dispatch(setAllItems(refreshResp.resources));
             dispatch(determineAllFilteredItems());

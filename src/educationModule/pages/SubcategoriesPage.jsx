@@ -9,7 +9,6 @@ import { convertPathToArray } from '../../helpers'
 import { CategoriesNavigator } from '../components/CategoriesNavigator'
 
 export const SubcategoriesPage = () => {
-  
   const dispatch = useDispatch();
   const location = useLocation();
   let pathCategories = convertPathToArray(decodeURIComponent(location.pathname));
@@ -19,21 +18,22 @@ export const SubcategoriesPage = () => {
 
   useEffect(() => {
     dispatch(startLoadingCategories(pathCategories));
-  }, []);
+  }, [location.pathname]); // CLAVE: Agregamos location.pathname para que recargue si entramos a una subcarpeta
 
   return (
-    <>
-      <EducationPageLayout>
-        <CategoriesNavigator pathCategories={pathCategories}/>
-        {
-            (!categories.hasError) ?
-            (<div style={{width: '100%', height: '100%', marginTop: "6vh"}}><CardsGrid/></div>)
-            :
-            (
-              <TableSection title={pathCategories[pathCategories.length-1]}/>
-            )
-        }
-      </EducationPageLayout>
-    </>
+    <EducationPageLayout>
+      <CategoriesNavigator pathCategories={pathCategories}/>
+      
+      {/* SECCIÓN 1: SUBCATEGORÍAS (Tarjetas) */}
+      <div style={{width: '100%', height: '100%', marginTop: "2vh"}}>
+        <h2 className='section-title' style={{marginLeft: '8%', fontSize: '1.8rem'}}>Subcategorías</h2>
+        <CardsGrid/>
+      </div>
+
+      {/* SECCIÓN 2: RECURSOS (Tabla) */}
+      <div style={{marginTop: "6vh"}}>
+        <TableSection title="Recursos"/>
+      </div>
+    </EducationPageLayout>
   )
 }

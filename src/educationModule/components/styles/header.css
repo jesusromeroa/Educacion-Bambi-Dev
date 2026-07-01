@@ -55,18 +55,30 @@
   transition: all 0.3s ease;
 }
 
-/* Estilo para el botón de Iniciar Sesión (Blanco) */
-.login-btn {
-  background-color: #ffffff; /* ¡Cambiado! Color del botón a blanco */
-  color: #0b7d40; /* Texto en el verde del header para dar contraste */
-  border: 2px solid #0b7d40;
+/* Estilo para el botón de Iniciar Sesión (Igual al de Biblioteca) */
+/* 1. Botón Transparente (Biblioteca) */
+.header-outline-btn {
+  background-color: #ffffff;
+  color: #0b7d40;
+  border: 1px solid #0b7d40; /* Borde de 1px exacto */
 }
 
-.login-btn:hover {
-  background-color: #e8e8e8; /* Blanco un poco gris al pasar el ratón */
-  border-color: #e8e8e8;
+.header-outline-btn:hover {
+  background-color: #f4fbf6;
+  transform: translateY(-2px);
+}
+
+/* 2. Botón Sólido Verde (Acceso de Personal) */
+.header-solid-btn {
+  background-color: #0b7d40;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  border: 1px solid #0b7d40; /* Mismo borde de 1px para que midan EXACTAMENTE lo mismo */
+}
+
+.header-solid-btn:hover {
+  background-color: #086030;
+  border-color: #086030;
+  box-shadow: 0 4px 12px rgba(11, 125, 64, 0.3);
   transform: translateY(-2px);
 }
 
@@ -76,7 +88,7 @@
 .admin-menu {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 20px; /* Restauramos tu separación original perfecta */
 }
 
 .admin-badge {

@@ -11,6 +11,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'; 
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import './styles/header.css';
 
 export const Header = () => {
@@ -54,6 +55,7 @@ export const Header = () => {
         <header className={`header-container ${isVisible ? '' : 'header-hidden'}`}>
             
             <div className="logo-section">
+                {/* CORRECCIÓN: El logo siempre lleva a la Landing Page (raíz) */}
                 <Link to="/" tabIndex={0} className="link-to-inicio">
                     <img src="/HBV_logo_2022_verde.png" alt="Bambi Logo" className="header-logo" />
                 </Link>
@@ -70,8 +72,15 @@ export const Header = () => {
                     (status === 'authenticated')
                     ? (
                         <div className="admin-menu">
+                            
+                            {/* Botón Biblioteca (Usuario Logueado) */}
+                            <Link to="/biblioteca" className="modern-btn header-outline-btn">
+                                <MenuBookIcon fontSize="small" />
+                                Biblioteca
+                            </Link>
+
                             {isSuperAdmin && (
-                                <Link to="/panel-control" className="modern-btn" style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #2e7d32' }}>
+                                <Link to="/panel-control" className="modern-btn header-outline-btn">
                                     <AdminPanelSettingsIcon fontSize="small" />
                                     Acceso de Usuarios
                                 </Link>
@@ -87,10 +96,21 @@ export const Header = () => {
                         </div>
                     )
                     : (
-                        <Link to="/login" className="modern-btn login-btn">
-                            <LoginIcon fontSize="small" />
-                            Acceso de Personal
-                        </Link>
+                        <div className="admin-menu"> 
+                            
+                            {/* Botón Biblioteca (Público) */}
+                            <Link to="/biblioteca" className="modern-btn header-outline-btn">
+                                <MenuBookIcon fontSize="small" />
+                                Biblioteca
+                            </Link>
+
+                            {/* Botón Acceso (Público) - Ahora usa la clase nueva */}
+                            <Link to="/login" className="modern-btn header-solid-btn">
+                                <LoginIcon fontSize="small" />
+                                Acceso de Personal
+                            </Link>
+                            
+                        </div>
                     )
                 }
             </nav>

@@ -1,25 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux'; // <-- 1. Importamos useSelector
 import './styles/addResourceModal.css';
 
 const initialFormData = {
   title: '',
-  category: '' 
-  // Eliminamos 'format' de aquí, ahora lo detectaremos automáticamente
+  category: '',
+  subcategory: '' // <-- 2. Nuevo campo
 };
 
 export const AddResourceModal = ({ isOpen, onClose, onSave, initialData }) => {
+  // 3. Traemos las categorías reales de la Base de Datos
+  const { categories } = useSelector(state => state.educationModule);
+
   const [formState, setFormState] = useState(initialFormData);
-  
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (initialData) {
-      const formattedCategory = initialData.category ? initialData.category.replace(/ /g, '-') : '';
-      
       setFormState({
         title: initialData.name || '',
-        category: formattedCategory
+        category: initialData.category || '',
+        subcategory: initialData.subcategory || ''
       });
       setSelectedFile(null); 
     } else {
@@ -31,14 +33,21 @@ export const AddResourceModal = ({ isOpen, onClose, onSave, initialData }) => {
 
   if (!isOpen) return null;
 
-  const { title, category } = formState;
+  const { title, category, subcategory } = formState;
+
+  // 4. Lógica para detectar las subcategorías disponibles según la categoría seleccionada
+  const selectedCategoryObj = categories.find(cat => cat.title === category);
+  const availableSubcategories = selectedCategoryObj?.subcategories || [];
 
   const onInputChange = ({ target }) => {
     const { name, value } = target;
-    setFormState({
-      ...formState,
-      [name]: value
-    });
+    
+    // Si el usuario cambia la categoría principal, blanqueamos la subcategoría
+    if (name === 'category') {
+        setFormState({ ...formState, category: value, subcategory: '' });
+    } else {
+        setFormState({ ...formState, [name]: value });
+    }
   };
 
   const handleFileChange = (e) => {
@@ -47,28 +56,22 @@ export const AddResourceModal = ({ isOpen, onClose, onSave, initialData }) => {
     }
   };
 
-  // ========================================================
-  // NUEVO: Función para autodetectar el formato del archivo
-  // ========================================================
   const detectFormat = (file) => {
     if (!file) return 'default';
-    
-    // Leemos el tipo MIME del archivo (ej: 'application/pdf', 'video/mp4')
     const mimeType = file.type.toLowerCase();
     
     if (mimeType.includes('pdf')) return 'pdf';
     if (mimeType.includes('video')) return 'video';
     if (mimeType.includes('image')) return 'imagen';
     if (mimeType.includes('word') || mimeType.includes('document')) return 'doc';
-    
-    return 'default'; // Si es excel, ppt u otro desconocido
+    return 'default'; 
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     
     if (title.trim().length === 0 || category.trim().length === 0) {
-        alert("Por favor, completa todos los campos y selecciona una categoría.");
+        alert("Por favor, completa todos los campos obligatorios.");
         return;
     }
 
@@ -79,9 +82,6 @@ export const AddResourceModal = ({ isOpen, onClose, onSave, initialData }) => {
 
     setIsUploading(true);
     
-    // Asignamos el formato de forma inteligente
-    // Si estamos editando y no subió archivo nuevo, conservamos el viejo. 
-    // Si subió un archivo, lo detectamos.
     let finalFormat = initialData ? initialData.format : 'default'; 
     if (selectedFile) {
         finalFormat = detectFormat(selectedFile);
@@ -116,8 +116,10 @@ export const AddResourceModal = ({ isOpen, onClose, onSave, initialData }) => {
             onChange={onInputChange}
             required
             disabled={isUploading}
+            style={{ marginBottom: '15px' }}
           />
 
+          {/* MENÚ DINÁMICO DE CATEGORÍAS */}
           <select 
             className="modal-select" 
             name="category"
@@ -125,13 +127,35 @@ export const AddResourceModal = ({ isOpen, onClose, onSave, initialData }) => {
             onChange={onInputChange}
             required
             disabled={isUploading}
+            style={{ marginBottom: '15px' }}
           >
-            <option value="" disabled>-- Selecciona el Área / Categoría --</option>
-            <option value="Dirección-Sociolegal">Dirección Sociolegal</option>
-            <option value="Educación-Infantil">Educación Infantil</option>
-            <option value="Educación-Juvenil">Educación Juvenil</option>
-            <option value="Recursos-Humanos">Recursos Humanos</option>
+            <option value="" disabled>-- Selecciona la Categoría --</option>
+            {categories.map(cat => (
+                <option key={cat.id} value={cat.title}>
+                    {cat.title}
+                </option>
+            ))}
           </select>
+
+          {/* MENÚ CONDICIONAL DE SUBCATEGORÍAS */}
+          {availableSubcategories.length > 0 && (
+            <select 
+              className="modal-select" 
+              name="subcategory"
+              value={subcategory}
+              onChange={onInputChange}
+              disabled={isUploading}
+              style={{ marginBottom: '15px' }}
+              required /* Lo hacemos obligatorio si existen subcategorías */
+            >
+              <option value="" disabled>-- Selecciona una Subcategoría --</option>
+              {availableSubcategories.map((sub, index) => (
+                  <option key={index} value={sub}>
+                      {sub}
+                  </option>
+              ))}
+            </select>
+          )}
 
           {/* INPUT DE ARCHIVO FÍSICO */}
           <div style={{ marginBottom: '15px' }}>
@@ -144,9 +168,6 @@ export const AddResourceModal = ({ isOpen, onClose, onSave, initialData }) => {
                 style={{ marginBottom: '5px' }}
               />
               
-              {/* ======================================================== */}
-              {/* NUEVO: Feedback visual del nombre del archivo              */}
-              {/* ======================================================== */}
               {selectedFile && (
                   <div style={{ color: 'var(--bambiBlue, #2e7d32)', fontWeight: 'bold', fontSize: '0.9rem', marginTop: '5px' }}>
                       📄 Archivo listo: {selectedFile.name}

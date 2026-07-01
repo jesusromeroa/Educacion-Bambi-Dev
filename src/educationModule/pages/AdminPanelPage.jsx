@@ -61,7 +61,7 @@ export const AdminPanelPage = () => {
             {/* NUEVO: Botón para volver al inicio */}
             <div style={{ marginBottom: '20px' }}>
                 <Link 
-                    to="/" 
+                    to="/biblioteca" 
                     style={{ 
                         textDecoration: 'none', 
                         color: '#2e7d32', 

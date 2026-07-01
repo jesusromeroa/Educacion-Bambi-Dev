@@ -118,3 +118,29 @@
         min-width: 150px;
     }
 }
+
+/* =========================================
+   DISEÑO RESPONSIVE PARA MÓVILES (Tarjetas)
+   ========================================= */
+@media (max-width: 768px) {
+    .card-container {
+        flex-direction: column; /* Apila el texto arriba y la foto abajo */
+        height: auto; /* Permite que la tarjeta crezca hacia abajo y el texto no se aplaste */
+    }
+
+    .card-info-content {
+        padding: 20px;
+        /* Aseguramos que tome todo el espacio disponible arriba */
+        width: 100%; 
+        box-sizing: border-box;
+    }
+
+    .card-image-wrapper {
+        width: 100%;
+        max-width: none; /* Rompe el límite máximo que tenía en PC */
+        min-width: 0;
+        height: 200px; /* Altura fija bonita para la imagen en celulares */
+        border-left: none; /* Quitamos la raya verde lateral... */
+        border-top: 4px solid var(--lightGreen); /* ...y la ponemos arriba de la foto para dividir */
+    }
+}

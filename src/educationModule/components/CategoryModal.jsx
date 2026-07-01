@@ -34,15 +34,21 @@ export const CategoryModal = ({ isOpen, onClose, initialData, onSave, onDelete }
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsUploading(true);
-        // Pasamos la data del formulario y el archivo físico por separado
-        await onSave(formData, selectedImage);
+        
+        const finalDataToSave = {
+            title: formData.title,
+            description: formData.description,
+            // Mantenemos intactas las subcategorías ocultas para que no se borren al editar
+            subcategories: initialData && initialData.subcategories ? initialData.subcategories : []
+        };
+
+        await onSave(finalDataToSave, selectedImage);
         setIsUploading(false);
     };
 
     const handleDeleteClick = () => {
         const confirm = window.confirm(`⚠️ ADVERTENCIA ⚠️\n¿Estás seguro de eliminar la categoría "${initialData.title}"?\n\nSi tiene recursos adentro, podrían perderse.`);
         if (confirm) {
-            // Pasamos también el storagePath para que el thunk sepa qué archivo borrar
             onDelete(initialData.title, initialData.storagePath); 
         }
     };
@@ -75,7 +81,7 @@ export const CategoryModal = ({ isOpen, onClose, initialData, onSave, onDelete }
                         <label>Imagen de Portada</label>
                         <input 
                             type="file" 
-                            accept="image/*" /* Solo permite seleccionar imágenes */
+                            accept="image/*"
                             onChange={handleImageChange}
                             disabled={isUploading}
                             className="modal-input"

@@ -14,21 +14,33 @@ export const SubcategoriesPage = () => {
   let pathCategories = convertPathToArray(decodeURIComponent(location.pathname));
   pathCategories.shift();
 
-  const { categories } = useSelector(store => store.educationModule);
+  // 1. Extraemos las categorías y el estado de carga desde Redux
+  const { loadedCategories, isLoading } = useSelector(store => store.educationModule.categories);
+  
+  // 2. Extraemos la información del usuario para saber si es Super Admin
+  const { status, email } = useSelector(state => state.auth);
+  const superAdmins = ['admin@admin.com'];
+  const isSuperAdmin = status === 'authenticated' && email && superAdmins.some(adminEmail => adminEmail.toLowerCase() === email.trim().toLowerCase());
+
+  // 3. LA MAGIA CONDICIONAL: 
+  // Mostrar si está cargando (para ver el loader), si hay datos, o si es Admin (para poder agregar)
+  const showSubcategoriesSection = isLoading || loadedCategories.length > 0 || isSuperAdmin;
 
   useEffect(() => {
     dispatch(startLoadingCategories(pathCategories));
-  }, [location.pathname]); // CLAVE: Agregamos location.pathname para que recargue si entramos a una subcarpeta
+  }, [location.pathname]); 
 
   return (
     <EducationPageLayout>
       <CategoriesNavigator pathCategories={pathCategories}/>
       
-      {/* SECCIÓN 1: SUBCATEGORÍAS (Tarjetas) */}
-      <div style={{width: '100%', height: '100%', marginTop: "2vh"}}>
-        <h2 className='section-title' style={{marginLeft: '8%', fontSize: '1.8rem'}}>Subcategorías</h2>
-        <CardsGrid/>
-      </div>
+      {/* SECCIÓN 1: SUBCATEGORÍAS (Se oculta para usuarios normales si está vacía) */}
+      {showSubcategoriesSection && (
+        <div style={{width: '100%', height: '100%', marginTop: "2vh"}}>
+          <h2 className='section-title' style={{marginLeft: '8%', fontSize: '1.8rem'}}>Subcategorías</h2>
+          <CardsGrid/>
+        </div>
+      )}
 
       {/* SECCIÓN 2: RECURSOS (Tabla) */}
       <div style={{marginTop: "6vh"}}>

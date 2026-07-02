@@ -15,12 +15,12 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import './styles/header.css';
 
 export const Header = () => {
-    const { status, email } = useSelector( state => state.auth );
+   // PEGAR ESTO ✅
+const { status, role, email } = useSelector(state => state.auth);
+const isSuperAdmin = status === 'authenticated' && role === 'admin';
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const superAdmins = ['admin@admin.com']; 
-    const isSuperAdmin = status === 'authenticated' && email && superAdmins.some(adminEmail => adminEmail.toLowerCase() === email.trim().toLowerCase());
 
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);

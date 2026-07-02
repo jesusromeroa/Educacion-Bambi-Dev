@@ -10,7 +10,13 @@ export const startLoginWithEmailPassword = ({ email, password }) => {
         try {
             const result = await signInWithEmailAndPassword(firebaseAuth, email, password); 
             const { uid, displayName } = result.user;
-            dispatch(login({ uid, displayName, email }));
+            
+            // BUSCAMOS EL ROL EN LA BASE DE DATOS
+            const roleResp = await checkIsEmailWhitelisted(email);
+            const userRole = roleResp.ok ? roleResp.role : 'profesor';
+
+            // LO GUARDAMOS EN REDUX
+            dispatch(login({ uid, displayName, email, role: userRole }));
 
         } catch (error) {
             console.error('Error en login:', error.message);
@@ -21,35 +27,24 @@ export const startLoginWithEmailPassword = ({ email, password }) => {
     };
 };
 
-// ========================================================
-// NUEVO: REGISTRO DE PROFESORES CON LISTA BLANCA
-// ========================================================
 export const startRegisterWithEmailPassword = ({ email, password, displayName }) => {
     return async (dispatch) => {
         dispatch(checkingCredentials()); 
 
         try {
-            // 1. PRIMERO: Verificamos si el Super Admin lo invitó
             const checkResp = await checkIsEmailWhitelisted(email);
-            
-            if (!checkResp.ok) {
-                throw new Error(checkResp.errorMessage);
-            }
+            if (!checkResp.ok) throw new Error(checkResp.errorMessage);
 
-            // 2. SEGUNDO: Si está invitado, le creamos la cuenta en Firebase
             const result = await createUserWithEmailAndPassword(firebaseAuth, email, password);
             const { uid } = result.user;
             
-            // 3. Lo logueamos en Redux para que entre a la app
-            dispatch(login({ uid, displayName, email }));
+            dispatch(login({ uid, displayName, email, role: checkResp.role }));
 
         } catch (error) {
             console.error('Error en registro:', error.message);
-            
             let errorMessage = error.message; 
             if (error.code === 'auth/email-already-in-use') errorMessage = 'Este correo ya tiene una cuenta creada.';
             if (error.code === 'auth/weak-password') errorMessage = 'La contraseña debe tener al menos 6 caracteres.';
-            
             dispatch(logout({ errorMessage }));
         }
     };

@@ -21,9 +21,9 @@ export const WelcomingSlideShow = () => {
 
     const slides = useSelector(store => store.educationModule.slideShowItems);
     
-    const { status, email } = useSelector(state => state.auth);
-    const superAdmins = ['admin@admin.com']; 
-    const isSuperAdmin = status === 'authenticated' && email && superAdmins.some(adminEmail => adminEmail.toLowerCase() === email.trim().toLowerCase());
+    // PEGAR ESTO ✅
+    const { status, role } = useSelector(state => state.auth);
+    const isSuperAdmin = status === 'authenticated' && role === 'admin';
 
     const dispatch = useDispatch();
     const [currentSlideId, setCurrentSlideId] = useState(0); 

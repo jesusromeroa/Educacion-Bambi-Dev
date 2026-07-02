@@ -18,9 +18,9 @@ export const SubcategoriesPage = () => {
   const { loadedCategories, isLoading } = useSelector(store => store.educationModule.categories);
   
   // 2. Extraemos la información del usuario para saber si es Super Admin
-  const { status, email } = useSelector(state => state.auth);
-  const superAdmins = ['admin@admin.com'];
-  const isSuperAdmin = status === 'authenticated' && email && superAdmins.some(adminEmail => adminEmail.toLowerCase() === email.trim().toLowerCase());
+ // PEGAR ESTO ✅
+const { status, role } = useSelector(state => state.auth);
+const isSuperAdmin = status === 'authenticated' && role === 'admin';
 
   // 3. LA MAGIA CONDICIONAL: 
   // Mostrar si está cargando (para ver el loader), si hay datos, o si es Admin (para poder agregar)

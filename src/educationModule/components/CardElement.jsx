@@ -13,9 +13,9 @@ export const CardElement = ({ title = '', description = '', imageUrl = '', onEdi
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { status, email } = useSelector(state => state.auth);
-  const superAdmins = ['admin@admin.com']; 
-  const isSuperAdmin = status === 'authenticated' && email && superAdmins.some(adminEmail => adminEmail.toLowerCase() === email.trim().toLowerCase());
+  // PEGAR ESTO ✅
+const { status, role } = useSelector(state => state.auth);
+const isSuperAdmin = status === 'authenticated' && role === 'admin';
 
   const navigateInsideCategory = () => {
     let pathCategories = convertPathToArray(decodeURIComponent(location.pathname));

@@ -6,16 +6,9 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 export const AdminPanelPage = () => {
-    const { status, email } = useSelector(state => state.auth);
-    
-    // Definimos los correos autorizados
-    const superAdmins = ['admin@admin.com']; 
-
-    // Lógica de validación robusta
-    const isSuperAdmin = status === 'authenticated' && 
-                         email && 
-                         superAdmins.some(adminEmail => adminEmail.toLowerCase() === email.trim().toLowerCase());
-
+// PEGAR ESTO ✅
+const { status, role } = useSelector(state => state.auth);
+const isSuperAdmin = status === 'authenticated' && role === 'admin';
     const [users, setUsers] = useState([]);
     const [newEmail, setNewEmail] = useState('');
     const [isLoading, setIsLoading] = useState(true);

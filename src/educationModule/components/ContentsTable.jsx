@@ -73,13 +73,16 @@ export const ContentsTable = ({pageItems = [], format= {tableFormat: [], dataFor
         return alert("Error: No se puede eliminar, falta el identificador del documento.");
       }
       
-      let pathForDeletion = [];
-      if (row.category) pathForDeletion.push(row.category.replace(/ /g, '-'));
-      if (row.subcategory) pathForDeletion.push(row.subcategory.replace(/ /g, '-'));
+      // 1. ¿DÓNDE VIVE EL ARCHIVO EN LA BD? (Para el borrado)
+      let deletePathArray = [];
+      if (row.category) deletePathArray.push(row.category.replace(/ /g, '-'));
+      if (row.subcategory) deletePathArray.push(row.subcategory.replace(/ /g, '-'));
 
-      const exactFirebasePath = categoryNamesArray.length > 0 ? categoryNamesArray : pathForDeletion;
+      // 2. ¿DÓNDE ESTAMOS PARADOS? (Para la recarga visual)
+      const reloadPathArray = categoryNamesArray;
       
-      await dispatch(startDeletingResourceComplete(targetId, row.storagePath, exactFirebasePath));
+      // Le pasamos ambas rutas por separado al thunk
+      await dispatch(startDeletingResourceComplete(targetId, row.storagePath, deletePathArray, reloadPathArray));
     }
   };
 

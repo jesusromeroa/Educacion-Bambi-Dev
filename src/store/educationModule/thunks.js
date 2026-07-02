@@ -179,37 +179,48 @@ export const startSavingNewResource = ({ name, format, url }, categoryNamesArray
     }
 }
 
+
 /**
  * Elimina el registro de Firestore y destruye el archivo físico en Storage
  * para evitar archivos huérfanos.
  */
-export const startDeletingResourceComplete = (resourceId, storagePath, categoryNamesArray = []) => {
-    return async (dispatch) => {
+export const startDeletingResourceComplete = (resourceId, storagePath, deletePathArray = [], reloadPathArray = []) => {
+    return async (dispatch, getState) => {
         
         // 1. Borrado físico en Firebase Storage
         if (storagePath) {
             const deleteStorageResp = await deleteFileFromStorage(storagePath);
             if (!deleteStorageResp.ok) {
                 console.error("No se pudo borrar el archivo físico:", deleteStorageResp.errorMessage);
-                // Decisión arquitectónica: Continuamos con el borrado en BD aunque falle el físico
             }
         }
 
-        // 2. Borrado lógico en Firestore
-        const resp = await deleteResource(resourceId, categoryNamesArray);
+        // 2. Borrado lógico en Firestore (Usamos deletePathArray)
+        const resp = await deleteResource(resourceId, deletePathArray);
         if (!resp.ok) return console.error("Error al borrar en Firestore:", resp.errorMessage);
         
         console.log(`Recurso eliminado completamente!`);
 
-        // 3. SILENT RELOAD
-        const refreshResp = await loadResources(categoryNamesArray);
+        // 3. SILENT RELOAD (Usamos reloadPathArray)
+        const refreshResp = await loadResources(reloadPathArray);
         if (refreshResp.ok) {
             dispatch(setAllItems(refreshResp.resources));
             dispatch(determineAllFilteredItems());
             dispatch(calculateTotalPages());
             
-            // Si al borrar vaciamos la página actual, retrocedemos una página por UX
-            dispatch(loadCurrentPageItems()); 
+            // 4. SOLUCIÓN A LA PÁGINA FANTASMA: Verificamos si nos salimos del límite
+            const { currentPage, totalPages } = getState().educationModule.tableSection;
+
+            // Si estábamos en la pág 2, y el total bajó a 1, retrocedemos automáticamente
+            if (currentPage > totalPages && totalPages > 0) {
+                dispatch(setNewPage(totalPages));
+            } else if (totalPages === 0) {
+                // Si borramos absolutamente todo, nos aseguramos de resetear a 1
+                dispatch(setNewPage(1)); 
+            } else {
+                // Si todo está normal, solo refrescamos la página actual
+                dispatch(loadCurrentPageItems()); 
+            }
         }
     }
 }
